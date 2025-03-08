@@ -787,7 +787,9 @@
                     document.getElementById("login-error").innerText = error.message;
                 });
             } else {
-                signInWithEmailAndPassword(auth, email, password).then(() => { }).catch((error) => {
+                signInWithEmailAndPassword(auth, email, password).then(() => {
+                    location.reload(); // Refresh the page after sign-in
+                }).catch((error) => {
                     document.getElementById("login-error").innerText = error.message;
                 });
             }
