@@ -43,19 +43,19 @@
             } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
     const firebaseConfig = {
 
-        apiKey: "AIzaSyCh3u1OK7oHW1RZ7jIhgC1WPX9Az4vWcBE",
+    apiKey: "AIzaSyCh3u1OK7oHW1RZ7jIhgC1WPX9Az4vWcBE",
 
-        authDomain: "senera-app.firebaseapp.com",
+    authDomain: "senera-app.firebaseapp.com",
 
-        projectId: "senera-app",
+    projectId: "senera-app",
 
-        storageBucket: "senera-app.firebasestorage.app",
+    storageBucket: "senera-app.firebasestorage.app",
 
-        messagingSenderId: "279962559878",
+    messagingSenderId: "279962559878",
 
-        appId: "1:279962559878:web:895faf6acf3b9a5ca23807"
+    appId: "1:279962559878:web:895faf6acf3b9a5ca23807"
 
-    };
+  };
 
 
             const app = initializeApp(firebaseConfig);
@@ -744,51 +744,49 @@
 
             let currentOpenElement = null;
 
-            document.body.addEventListener("click", function (event) {
-                const user = auth.currentUser;
-                const userElement = event.target.closest(".swag");
-                const userContainer = document.querySelector('.user-container');
-                const userPresenceRef = ref(database, "presence/" + user.uid);
+        document.body.addEventListener("click", function (event) {
+            const userElement = event.target.closest(".swag");
+            const userContainer = document.querySelector('.user-container');
+
+            const user = auth.currentUser;
 
 
-                if (userElement) {
-                    const name = userElement.getAttribute("data-name");
-                    if (name === user.displayName) {
-                        document.querySelector(".user-options").style.display = "none";
-                    } else {
-                        document.querySelector(".user-options").style.display = "inline-block";
-                    }
+            if (userElement) {
+                const name = userElement.getAttribute("data-name");
+                if (name === user.displayName) {
+                    document.querySelector(".user-options").style.display = "none";
+                } else {
+                    document.querySelector(".user-options").style.display = "inline-block";
+                }
 
-                    if (userElement === currentOpenElement) {
-                        userContainer.style.display = "none";
-                        currentOpenElement = null;
-                    } else {
-                        const photo = userElement.getAttribute("data-photo") || "default.png";
-                        const status = userElement.getAttribute("data-status") || "No status...";
-                        const userid = userElement.getAttribute("data-userid");
+                if (userElement === currentOpenElement) {
+                    userContainer.style.display = "none";
+                    currentOpenElement = null;
+                } else {
+                    const photo = userElement.getAttribute("data-photo") || "default.png";
+                    const status = userElement.getAttribute("data-status") || "No status...";
 
-                        document.getElementById("profile-name").textContent = name;
-                        document.getElementById("profile-pfp").src = photo;
-                        document.getElementById("profile-status").textContent = status;
+                    document.getElementById("profile-name").textContent = name;
+                    document.getElementById("profile-pfp").src = photo;
+                    document.getElementById("profile-status").textContent = status;
 
-                        document.getElementById("friend-btn").setAttribute("data-friended-id", userid);
-
-                        userContainer.style.position = "absolute";
-                        userContainer.style.display = "flex";
+                    userContainer.style.position = "absolute";
+                    userContainer.style.display = "flex";
 
                         const onlineBar = document.querySelector(".online");
                         const onlineRect = onlineBar.getBoundingClientRect();
                         const offset = 40;
 
-                        userContainer.style.top = `${onlineRect.top + window.scrollY + offset}px`;
-                        userContainer.style.left = `${onlineRect.left - userContainer.offsetWidth - 10}px`;
+                    userContainer.style.top = `${onlineRect.top + window.scrollY + offset}px`;
+                    userContainer.style.left = `${onlineRect.left - userContainer.offsetWidth - 10}px`;
 
-                        currentOpenElement = userElement;
-                    }
-                } else if (!event.target.closest(".user-container")) {
-                    currentOpenElement = null;
+                    currentOpenElement = userElement;
                 }
-            });
+            } else if (!event.target.closest(".user-container")) {
+                currentOpenElement = null;
+            }
+        });
+
 
 
             function login(e) {
@@ -1187,52 +1185,56 @@
                 });
             }
 
-            // you can go shit yourself names :middle_finger:
-        </script>
-    </head>
-    <body>
-        <div id="notification" style="display: none;">
-            <h2>Notifications</h2>
-            <span id="closeNOTI">&times;</span>
-            <ul id="notification-list"></ul>
-        </div>
+        // you can go shit yourself names :middle_finger:
 
-        <div class="user-container" style="display: none;">
-                <div class="user-options">
-                    <button id="friend-btn">
-                        <img src="friend.png" alt="Friend Button" class="friend-img" />
-                    </button>
-                    <!--<button id="block-btn">
-                    <img src="block-img.png" alt="Block this person?" class="block-img">
-                </button> Block button -->
-                </div>
-                <img id="profile-pfp" src="default.png" alt="Profile Picture" onerror="this.src='default.png'"
-                    class="user-img" height="100px" width="100px" style="border-radius: 50%;">
-                <p id="profile-name" class="username" style="font-size: 40px;" data-username="{{FRIENDUSERNAME}}"></p>
 
-                <div class="user-desc">
-                    <p id="profile-status" class="desc" style="font-size: 15px;">gay f</p>
-                </div>
+    </script>
+</head>
+
+<body>
+    <div id="notification" style="display: none;">
+        <h2>Notifications</h2>
+        <span id="closeNOTI">&times;</span>
+        <ul id="notification-list"></ul>
+
+    </div>
+
+    <div class="user-container" style="display: none;">
+            <div class="user-options">
+                <!--<button id="friend-btn">
+                    <img src="friend.png" alt="Friend Button" class="friend-img" />
+                </button>-->
+                <!--<button id="block-btn">
+                <img src="block-img.png" alt="Block this person?" class="block-img">
+            </button> Block button -->
             </div>
-        <div id="login-container" class="signInForm">
-            <h1>Welcome back to Senera (Public Beta)</h1>
-            <form id="login-form" style="display: inline-block;" onsubmit="login(event)">
-                <label for="login-username">Username (not required for sign in)</label><br>
-                <input type="text" id="login-username"
-                    placeholder="The unique account name connected to your account."><br><br>
-                <label for="login-email">Email</label><br>
-                <input type="email" id="login-email" placeholder="The email connected to your account." required><br><br>
-                <label for="login-password">Password</label><br>
-                <input type="password" id="login-password" placeholder="Your password (don't forget this!)"
-                    required><br><br>
-                <button type="submit">Sign in</button>
-                <button type="submit">Sign up</button>
-                <p id="tos-notice" style="color: red;">By using Senera, I agree to the <a href="https://senera.freakybob.site/tos">TOS</a>.</p>
-                <p id="login-error" style="color: red;"></p>
-            </form>
+            <img id="profile-pfp" src="default.png" alt="Profile Picture" onerror="this.src='default.png'"
+                class="user-img" height="100px" width="100px" style="border-radius: 50%;">
+            <p id="profile-name" class="username" style="font-size: 40px;" data-username="{{FRIENDUSERNAME}}"></p>
+
+            <div class="user-desc">
+                <p id="profile-status" class="desc" style="font-size: 15px;">gay f</p>
+            </div>
         </div>
-        <!--<script>
-            const signupCaptcha = document.getElementById('signupCaptcha');
+    <div id="login-container" class="signInForm">
+        <h1>Welcome back to Senera (Public Beta)</h1>
+        <form id="login-form" style="display: inline-block;" onsubmit="login(event)">
+            <label for="login-username">Username (not required for sign in)</label><br>
+            <input type="text" id="login-username"
+                placeholder="The unique account name connected to your account."><br><br>
+            <label for="login-email">Email</label><br>
+            <input type="email" id="login-email" placeholder="The email connected to your account." required><br><br>
+            <label for="login-password">Password</label><br>
+            <input type="password" id="login-password" placeholder="Your password (don't forget this!)"
+                required><br><br>
+            <button type="submit">Sign in</button>
+            <button type="submit">Sign up</button>
+            <p id="tos-notice" style="color: red;">By using Senera, I agree to the <a href="https://senera.freakybob.site/tos">TOS</a>.</p>
+            <p id="login-error" style="color: red;"></p>
+        </form>
+    </div>
+<!--    <script>
+        const signupCaptcha = document.getElementById('signupCaptcha');
 
             signupCaptcha.addEventListener('verified', (e) => {
                 console.log('verified event', {token: e.token});
@@ -1289,55 +1291,55 @@
                 </div>
             </div>
 
-            <div id="modal-feedback" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>What</h2>
-                    <p>You shouldn't see this.</p>
-                </div>
-            </div>
-            <div id="modal-help" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Help</h2>
-                    <p>Need help getting around? Uhh..</p>
-                    <strong>Devs:</strong>
-                    <li>Freakybob Team (general owner of the project)</li>
-                    <li>Squirrel (Added Embeds, Emojis and more =3)</li>
-                    <li>Nomaakip (Helped with the frontend, features and made the desktop app)</li>
-                    <li>Wish (Made the linux port of Senera)</li>
-                    <li>mpax235 (Fixed stuff and added markdown support)</li>
-                    <li>All the people at Stack Overflow 13 years ago</li>
-                    <li>ChatGPT for the backend stuff</li>
-                    <br>
-                    <div id="separator" style="height: 1px; background-color: #ccc;"></div>
-                    <br>
-                    <strong>Open Source Attributions:</strong>
-                    <li>Senera is licensed under <a href="https://github.com/Freakybob-Team/senera/blob/main/LICENSE">GPL-3.0</a>.</li>
-                    <li>Google Material Design Icons, licensed under the Apache 2.0 License.</li>
-                    <li>Material Design Sounds by Google, CC-BY 4.0</li>
-                    <li>Twemoji provided by Jason Sofonia & Justine De Caires (originally Twitter), licensed under the MIT
-                        License.</li>
-                    <li>Twemoji by jdecked on GitHub, adapted from "Twemoji" by Twitter, CC-BY 4.0.</li>
-                </div>
-            </div>
-            <div id="user-settings" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Profile</h2>
-                    <form onsubmit="return false;" autocomplete="off">
-                        <label for="settings-pfp">Profile Picture URL:</label><br>
-                        <input type="url" id="settings-pfp" placeholder="Enter image URL (default.png)"><br><br>
-                        <p id="status-message">Change your status</p>
-                        <input type="text" id="status" placeholder="Change your status" maxlength="40">
-                        <span id="charLimit2">40</span>
-                        <br>
-                        <button type="button" style="margin-top: 4px;" id="saveStatus">Save status</button>
-                        <button type="button" id="savePFP">Save profile picture</button>
-                    </form>
-                </div>
+        <div id="modal-feedback" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>What</h2>
+                <p>You shouldn't see this.</p>
             </div>
         </div>
+        <div id="modal-help" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Help</h2>
+                <p>Need help getting around? Uhh..</p>
+                <strong>Devs:</strong>
+                <li>Freakybob Team (general owner of the project)</li>
+                <li>Squirrel (Added Embeds, Emojis and more =3)</li>
+                <li>Nomaakip (Helped with the frontend, features and made the desktop app)</li>
+                <li>Wish (Made the linux port of Senera)</li>
+                <li>mpax235 (Fixed some stuff)</li>
+                <li>All the people at Stack Overflow 13 years ago</li>
+                <li>ChatGPT for the backend stuff</li>
+                <br>
+                <div id="separator" style="height: 1px; background-color: #ccc;"></div>
+                <br>
+                <strong>Open Source Attributions:</strong>
+                <li>Senera is licensed under <a href="https://github.com/Freakybob-Team/senera/blob/main/LICENSE">GPL-3.0</a>.</li>
+                <li>Google Material Design Icons, licensed under the Apache 2.0 License.</li>
+                <li>Material Design Sounds by Google, CC-BY 4.0</li>
+                <li>Twemoji provided by Jason Sofonia & Justine De Caires (originally Twitter), licensed under the MIT
+                    License.</li>
+                <li>Twemoji by jdecked on GitHub, adapted from "Twemoji" by Twitter, CC-BY 4.0.</li>
+            </div>
+        </div>
+        <div id="user-settings" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Profile</h2>
+                <form onsubmit="return false;" autocomplete="off">
+                    <label for="settings-pfp">Profile Picture URL:</label><br>
+                    <input type="url" id="settings-pfp" placeholder="Enter image URL (default.png)"><br><br>
+                    <p id="status-message">Change your status</p>
+                    <input type="text" id="status" placeholder="Change your status" maxlength="40">
+                    <span id="charLimit2">40</span>
+                    <br>
+                    <button type="button" style="margin-top: 4px;" id="saveStatus">Save status</button>
+                    <button type="button" id="savePFP">Save profile picture</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
         <div class="loadingDiv">
             <img src="loading.gif">
@@ -1354,8 +1356,8 @@
                 folder: 'svg',
                 ext: '.svg'
 
-            });
         });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@hcaptcha/vanilla-hcaptcha"></script>
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@hcaptcha/vanilla-hcaptcha"></script>
 </html>
