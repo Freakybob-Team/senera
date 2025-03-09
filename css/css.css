@@ -343,55 +343,6 @@ a:hover {
     background-position: 0 0;
 }
 
-.user-container {
-    background: #2b2b2b;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    border-radius: 12px;
-    padding: 20px;
-    width: 280px;
-    height: auto;
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    border: 3px solid #0ba106;
-    position: relative;
-}
-
-.user-options {
-    width: auto;
-    height: auto;
-    position: absolute;
-    top: 10px; 
-    right: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #444;
-    padding: 5px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-    z-index: 10;
-}
-
-#friend-btn {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-}
-
-#friend-btn:hover {
-    transform: scale(1.1);
-}
-
-.friend-img {
-    width: 20px;
-    height: 20px;
-    object-fit: cover;
-}
-
 #charLimit {
     color: #656565;
     font-weight: 200;
@@ -461,8 +412,7 @@ a:hover {
 
 #login-container input,
 #settings-pfp,
-#status,
-#pronouns_input {
+#status {
     width: 290px;
     padding: 10px;
     border: none;
@@ -539,6 +489,10 @@ a:hover {
     background-size: 400% 400%;
     animation: flow 15s ease-in-out infinite;
 }
+
+
+
+
 
 .loadingDiv p {
     margin-left: 30px;
@@ -816,4 +770,44 @@ li h1,
 li h2,
 li h3 {
     display: inline;
+}
+
+.user-options {
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 10px; 
+    right: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #444;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+#friend-btn, #block-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+#friend-btn:hover, #block-btn:hover {
+    transform: scale(1.1);
+}
+
+.friend-img, .block-img {
+    width: 20px;
+    height: 20px;
+    object-fit: cover;
+}
+
+#charLimit {
+    color: #656565;
+    font-weight: 200;
+    font-size: 18px;
+    margin-left: 15px;
 }
