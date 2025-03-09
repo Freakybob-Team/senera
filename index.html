@@ -1141,6 +1141,69 @@
         }
 
 
+        // you can go shit yourself names :middle_finger:
+        let currentOpenElement = null;
+
+        document.body.addEventListener("click", function (event) {
+            const userContainer = document.querySelector(".user-container");
+            const userElement = event.target.closest(".swag");
+
+
+            const user = auth.currentUser;
+
+
+            userContainer.innerHTML = `<div class="user-options">
+            <button id="friend-btn" data-friended-id="${user.uid}">
+                <img src="assets/friend.png" alt="Friend Button" class="friend-img" />
+            </button>
+            <!--<button id="block-btn">
+                <img src="assets/block-img.png" alt="Block this person?" class="block-img">
+            </button> Block button -->
+        </div>
+        <img id="profile-pfp" src="assets/default.png" alt="Profile Picture" onerror="this.src='assets/default.png'" class="user-img"
+            height="100px" width="100px" style="border-radius: 50%;">
+        <p id="profile-name" class="username" style="font-size: 40px;"></p>
+
+        <div class="user-desc">
+            <p id="profile-status" class="desc" style="font-size: 15px;">gay f</p>
+        </div>`;
+
+            if (userElement) {
+                const name = userElement.getAttribute("data-name");
+                if (name === user.displayName) {
+                    document.querySelector(".user-options").style.display = "none";
+                } else {
+                    document.querySelector(".user-options").style.display = "none";
+                }
+
+                if (userElement === currentOpenElement) {
+                    userContainer.style.display = "none";
+                    currentOpenElement = null;
+                } else {
+                    const photo = userElement.getAttribute("data-photo") || "assets/default.png";
+                    const status = userElement.getAttribute("data-status") || "No status...";
+
+                    document.getElementById("profile-name").textContent = name;
+                    document.getElementById("profile-pfp").src = photo;
+                    document.getElementById("profile-status").textContent = status;
+
+                    userContainer.style.display = "flex";
+                    userContainer.style.position = "absolute";
+
+                    const onlineBar = document.querySelector(".online");
+                    const onlineRect = onlineBar.getBoundingClientRect();
+                    const offset = 40;
+
+                    userContainer.style.top = `${onlineRect.top + window.scrollY + offset}px`;
+                    userContainer.style.left = `${onlineRect.left - userContainer.offsetWidth - 10}px`;
+
+                    currentOpenElement = userElement;
+                }
+            } else if (!event.target.closest(".user-container")) {
+                userContainer.style.display = "none";
+                currentOpenElement = null;
+            }
+        });
 
 
     </script>
