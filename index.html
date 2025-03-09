@@ -697,6 +697,7 @@
         const saveButton = document.getElementById('saveStatus');
         const statusInput = document.getElementById('status');
         const pronounsInput = document.getElementById('pronouns_input');
+        const bannerInput = document.getElementById('settings-banner');
         const charLimitDisplay = document.getElementById('charLimit2');
         const pronounsLimitDisplay = document.getElementById('charLimit3');
         const charLimit = 40;
@@ -780,11 +781,32 @@
             });
         }
 
+        const saveButton3 = document.getElementById('saveBanner');
+        if (saveButton3) {
+            saveButton3.addEventListener('click', () => {
+                const bannerI = bannerInput.value.trim();
+                if (bannerI !== "") {
+                    const escapedBanner = escapeHTML(bannerI);
+
+                    bannerInput.value = escapedBanner;
+                    modal.style.display = "none";
+
+                    const user = auth.currentUser;
+                    if (user) {
+                        const userBannerRef = ref(database, "users/" + user.uid + "/banner");
+                        set(userBannerRef, escapedBanner);
+                    }
+                }
+            });
+        }
+
+
 
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const userPresenceRef = ref(database, "presence/" + user.uid);
+                
                 set(userPresenceRef, { name: user.displayName || "Unknown", photo: user.photoURL || "default.png", userid: user.uid });
                 onDisconnect(userPresenceRef).remove();
 
@@ -800,24 +822,29 @@
                             const userInfo = childSnapshot.val();
                             const userStatusRef = ref(database, "users/" + childSnapshot.key + "/status");
                             const userPronounsRef = ref(database, "users/" + childSnapshot.key + "/pronouns");
+                            const userBannerRef = ref(database, "users/" + childSnapshot.key + "/banner");
 
                             const statusPromise = new Promise((resolve) => {
                                 onValue(userStatusRef, (statusSnapshot) => {
-                                    const status = statusSnapshot.val() || "";
+                            const status = statusSnapshot.val() || "";
 
-                                    onValue(userPronounsRef, (pronounsSnapshot) => {
-                                        const pronouns = pronounsSnapshot.val() || "No Pronouns...";
+                            onValue(userPronounsRef, (pronounsSnapshot) => {
+                                const pronouns = pronounsSnapshot.val() || "No Pronouns...";
 
-                                        resolve({ userInfo, status, pronouns });
-                                    });
+                                onValue(userBannerRef, (bannerSnapshot) => {
+                                    const userBanner = bannerSnapshot.val() || "logos/default-banner.png";  
+
+                                    resolve({ userInfo, status, pronouns, userBanner });
                                 });
                             });
+                        });
+                    });
 
                             userPromises.push(statusPromise);
                         });
 
                         Promise.all(userPromises).then(userStatusArray => {
-                            userStatusArray.forEach(({ userInfo, status, pronouns }) => {
+                            userStatusArray.forEach(({ userInfo, status, pronouns, userBanner }) => {
                                 const user = auth.currentUser;
                                 const truncatedStatusStr = status.length > 35 ? status.slice(0, 35) + '...' : status;
                                 const escapedTruncatedStatus = escapeHTML(truncatedStatusStr);
@@ -829,6 +856,7 @@
                                         data-name="${userInfo.name}" 
                                         data-photo="${userInfo.photo}" 
                                         data-status="${escapedFullStatus}" 
+                                        data-banner="${userBanner}"
                                         data-userid="${userInfo.userid}" 
                                         data-pronouns="${pronouns}">
                                         <img src="${userInfo.photo}" style="width:30px;height:30px;border-radius:50%;margin-right:10px;" onerror="this.src='default.png'">
@@ -879,6 +907,7 @@
                 const status = userElement.getAttribute("data-status") || "No status...";
                 const userid = userElement.getAttribute("data-userid");
                 const pronouns = userElement.getAttribute("data-pronouns");
+                const banner = userElement.getAttribute("data-banner");
 
                 optionsMenu.style.display = name === user.displayName ? "none" : "inline-block";
 
@@ -891,6 +920,7 @@
                     document.getElementById("profile-status").textContent = status;
                     document.getElementById("friend-btn").setAttribute("data-friended-id", userid);
                     document.getElementById("pronouns").textContent = pronouns;
+                    document.getElementById("profile-banner").src = banner;
 
                     userContainer.style.display = "flex";
 
@@ -1083,8 +1113,6 @@
         }
         window.deleteMessage = deleteMessage;
 
-
-        // bugs: It's not updating the friend icon when both people are friended so uhhh names it would be peak if you fix :333
 
         let hasNewNotifications = false;
         let isNotificationPanelOpen = false;
@@ -1350,25 +1378,29 @@
     </div>
 
     <div class="user-container" style="display: none;">
+        <div id="banner-div" style="box-sizing: border-box; position: relative;">
+            <img src="logos/senera-banner.png" alt="Profile Banner" id="profile-banner" style="border-radius: 8px 8px 0 0; height: 150px; object-fit: cover;" width="100%">
+            
+            <img id="profile-pfp" src="default.png" alt="Profile Picture" onerror="this.src='default.png'" class="user-img"
+                height="100px" width="100px" 
+                style="border-radius: 50%; border: 5px solid #2b2b2b; position: absolute; left: 50%; bottom: -50px; transform: translateX(-50%);">
+        </div>
+        <div class="user-info" style="flex-direction: column; margin-top: 60px;">  
+            <p id="profile-name" class="username" style="font-size: 32px;" data-username="{{FRIENDUSERNAME}}"></p>
+            <p id="pronouns" class="pronouns" style="font-size: 15px;">greg/skibidi</p>
+        </div>
+        <div class="user-desc">
+            <p id="profile-status" class="desc" style="font-size: 15px;">what</p>
+        </div>
         <div class="user-options" style="display: none;">
             <button id="friend-btn">
                 <img src="friend.png" alt="Friend Button" class="friend-img" />
             </button>
-            <!-- <button id="block-btn">
-                <img src="block-img.png" alt="Block this person?" class="block-img">
-            </button> -->
-        </div>
-        <img id="profile-pfp" src="default.png" alt="Profile Picture" onerror="this.src='default.png'" class="user-img"
-            height="100px" width="100px" style="border-radius: 50%;">
-        <div class="user-desc">
-            <p id="profile-status" class="desc" style="font-size: 15px;">what</p>
-        </div>
-        <div class="user-info">
-            <p id="profile-name" class="username" style="font-size: 32px;" data-username="{{FRIENDUSERNAME}}"></p>
-            <span class="separator" title="Pronouns"></span>
-            <span id="pronouns" class="pronouns" style="font-size: 15px;">greg/skibidi</span>
         </div>
     </div>
+    
+    
+
     <div id="login-container" class="signInForm">
         <h1>Welcome back to Senera (Public Beta)</h1>
         <form id="login-form" style="display: inline-block;" onsubmit="login(event)">
@@ -1480,7 +1512,7 @@
         </div>
 
         <div id="user-settings" class="modal">
-            <div class="modal-content" style="overflow: hidden;">
+            <div class="modal-content" style="overflow-y: auto;">
                 <span class="close">&times;</span>
                 <h2>Profile</h2>
                 <form onsubmit="return false;" autocomplete="off">
@@ -1498,10 +1530,14 @@
                     <span id="charLimit3">15</span>
                     <br>
                     <br>
-
+                    <label for="settings-banner">Profile Banner URL:</label><br>
+                    <input type="url" id="settings-banner" placeholder="Enter image URL (defaultBanner.png)">
+                    <br>
+                    <br>
                     <button type="button" id="savePronouns">Save pronouns</button>
-                    <button type="button" style="margin-top: 4px;" id="saveStatus">Save status</button>
+                    <button type="button" id="saveBanner">Save Banner</button>
                     <button type="button" id="savePFP">Save profile picture</button>
+                    <button type="button" style="margin-top: 4px;" id="saveStatus">Save status</button>
                 </form>
             </div>
         </div>

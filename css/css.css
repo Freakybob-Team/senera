@@ -96,7 +96,7 @@ input:hover {
     background: #2b2b2b;
     box-shadow: 0 4px 10px rgba(17, 115, 168, 0.5);
     border-radius: 12px;
-    padding: 20px;
+    padding: 0 20px 20px; 
     width: 280px;
     height: auto;
     position: absolute;
@@ -106,7 +106,48 @@ input:hover {
     text-align: center;
     border: 3px solid #0ba106;
     position: relative;
+    overflow: hidden; 
 }
+
+#banner-div {
+    box-sizing: border-box;
+    width: calc(100% + 40px); 
+    margin-bottom: 10px;
+}
+
+#profile-banner {
+    border-radius: 12px 12px 0 0;
+    width: 100%;
+}
+
+.user-img {
+    border-radius: 50%;
+    border: 5px solid green;
+    margin-top: -50px;
+    z-index: 1;
+}
+
+.user-info {
+    margin-bottom: 10px;
+}
+
+.user-desc {
+    margin-top: 10px;
+}
+
+.user-options {
+    margin-top: 10px;
+}
+
+.username {
+    font-size: 32px;
+}
+
+.pronouns {
+    font-size: 15px;
+}
+
+
 
 
 .user-img {
@@ -132,16 +173,6 @@ input:hover {
     font-size: 14px;
     font-weight: bold;
     color: white;
-    margin-right: 7px;
-}
-
-
-.separator {
-    width: 2px;
-    height: 24px;
-    background-color: #888;
-    margin: 0 8px;
-    border-radius: 2px;
 }
 
 
@@ -150,7 +181,6 @@ input:hover {
     color: #c7bfbf;
     font-weight: 500;
     text-transform: capitalize;
-    margin-left: 12px;
 }
 
 
@@ -434,6 +464,7 @@ a:hover {
 #LOGOUTTHANKSNOMAFORTHECODEongioweyouone,
 #saveSettings,
 #saveStatus,
+#saveBanner,
 #savePFP,
 #savePronouns {
     background: #ff1aba;
@@ -451,10 +482,12 @@ a:hover {
 #LOGOUTTHANKSNOMAFORTHECODEongioweyouone:hover,
 #saveSettings:hover,
 #saveStatus:hover,
+#saveBanner:hover,
 #savePFP:hover,
 #savePronouns:hover {
     box-shadow: 0 0 5px pink;
 }
+
 
 @keyframes flow {
     0% {
