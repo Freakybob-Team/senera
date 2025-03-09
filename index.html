@@ -1,267 +1,265 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta content="Senera Public Beta" property="og:title" />
-        <meta content="A new era is here." property="og:description" />
-        <meta content="https://senera.freakybob.site" property="og:url" />
-        <meta content="https://senera.freakybob.site/logos/senera-banner.png" property="og:image" />
-        <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
-        <title>Senera Public Beta</title>
-        <link rel="icon" href="logos/32x32.png">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="css/css.css">
-        <script type="module">
-            import {
-                initializeApp
-            } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-            import {
-                getDatabase,
-                ref,
-                push,
-                set,
-                onChildAdded,
-                get,
-                remove,
-                onChildChanged,
-                onChildRemoved,
-                onValue,
-                onDisconnect
-            } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
-            import {
-                getAuth,
-                createUserWithEmailAndPassword,
-                signInWithEmailAndPassword,
-                signOut,
-                onAuthStateChanged,
-                updateProfile,
-                GithubAuthProvider,
-                signInWithPopup,
-                signInWithRedirect,
-                getRedirectResult,
-                signInWithCredential
-            } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
-    const firebaseConfig = {
 
-    apiKey: "AIzaSyCh3u1OK7oHW1RZ7jIhgC1WPX9Az4vWcBE",
+<head>
+    <meta content="Senera Public Beta" property="og:title" />
+    <meta content="A new era is here." property="og:description" />
+    <meta content="https://senera.freakybob.site" property="og:url" />
+    <meta content="https://senera.freakybob.site/logos/senera-banner.png" property="og:image" />
+    <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
+    <title>Senera Public Beta</title>
+    <link rel="icon" href="logos/32x32.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/css.css">
+    <script type="module">
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+        import {
+            getDatabase,
+            ref,
+            push,
+            set,
+            onChildAdded,
+            get,
+            remove,
+            onChildChanged,
+            onChildRemoved,
+            onValue,
+            onDisconnect
+        } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            updateProfile,
+            GithubAuthProvider,
+            signInWithPopup,
+            signInWithRedirect,
+            getRedirectResult,
+            signInWithCredential
+        } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
+        const firebaseConfig = {
 
-    authDomain: "senera-app.firebaseapp.com",
+            apiKey: "AIzaSyCh3u1OK7oHW1RZ7jIhgC1WPX9Az4vWcBE",
 
-    projectId: "senera-app",
+            authDomain: "senera-app.firebaseapp.com",
 
-    storageBucket: "senera-app.firebasestorage.app",
+            projectId: "senera-app",
 
-    messagingSenderId: "279962559878",
+            storageBucket: "senera-app.firebasestorage.app",
 
-    appId: "1:279962559878:web:895faf6acf3b9a5ca23807"
+            messagingSenderId: "279962559878",
 
-  };
+            appId: "1:279962559878:web:895faf6acf3b9a5ca23807"
+
+        };
 
 
-            const app = initializeApp(firebaseConfig);
-            const database = getDatabase(app);
-            const auth = getAuth(app);
-            const messagesRef = ref(database, 'messages');
-            const typingRef = ref(database, 'typing');
-            const pingAudio = new Audio('sound.wav');
-            const provider = new GithubAuthProvider();
-            let typingTimeout;
-            let currentReply = null;
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth(app);
+        const messagesRef = ref(database, 'messages');
+        const typingRef = ref(database, 'typing');
+        const pingAudio = new Audio('sound.wav');
+        const provider = new GithubAuthProvider();
+        let typingTimeout;
+        let currentReply = null;
 
-            function setReply(messageId, author, messageText) {
-                currentReply = { messageId, author, messageText };
-                displayReplyIndicator();
-            }
-            window.setReply = setReply;
+        function setReply(messageId, author, messageText) {
+            currentReply = { messageId, author, messageText };
+            displayReplyIndicator();
+        }
+        window.setReply = setReply;
 
-            function cancelReply() {
-                currentReply = null;
-                const replyIndicator = document.getElementById('replyIndicator');
-                if (replyIndicator) replyIndicator.style.display = 'none';
-            }
+        function cancelReply() {
+            currentReply = null;
+            const replyIndicator = document.getElementById('replyIndicator');
+            if (replyIndicator) replyIndicator.style.display = 'none';
+        }
 
-            function displayReplyIndicator() {
-                const replyIndicator = document.getElementById('replyIndicator');
-                if (replyIndicator && currentReply) {
-                    replyIndicator.classList.remove('collapsed');
-                    replyIndicator.innerHTML = `<img src="reply.svg" alt="Reply" style="width:24px;height:24px;vertical-align:middle;"><span class="reply-text">"${escapeHTML(currentReply.messageText.slice(0, 30))}..."</span> <span class="cancel" title="Cancel reply">[x]</span>`;
-                    replyIndicator.style.display = 'flex';
-                    replyIndicator.querySelector('.cancel').addEventListener('click', cancelReply);
-                    setTimeout(() => {
-                        replyIndicator.classList.add('collapsed');
-                    }, 5000);
-                }
-            }
-
-            document.getElementById('replyIndicator').addEventListener('mouseenter', () => {
-                const replyIndicator = document.getElementById('replyIndicator');
+        function displayReplyIndicator() {
+            const replyIndicator = document.getElementById('replyIndicator');
+            if (replyIndicator && currentReply) {
                 replyIndicator.classList.remove('collapsed');
-            });
-
-            document.getElementById('replyIndicator').addEventListener('mouseleave', () => {
-                const replyIndicator = document.getElementById('replyIndicator');
+                replyIndicator.innerHTML = `<img src="reply.svg" alt="Reply" style="width:24px;height:24px;vertical-align:middle;"><span class="reply-text">"${escapeHTML(currentReply.messageText.slice(0, 30))}..."</span> <span class="cancel" title="Cancel reply">[x]</span>`;
+                replyIndicator.style.display = 'flex';
+                replyIndicator.querySelector('.cancel').addEventListener('click', cancelReply);
                 setTimeout(() => {
                     replyIndicator.classList.add('collapsed');
                 }, 5000);
-            });
-
-
-            const emojiMap = {
-                // Faces
-                ":sob:": "😭",
-                ":smile:": "😃",
-                ":heart:": "❤️",
-                ":broken_heart:": "💔",
-                ":thumbsup:": "👍",
-                ":fire:": "🔥",
-                ":laughing:": "😆",
-                ":confused:": "😕",
-                ":cry:": "😢",
-                ":sweat:": "😅",
-                ":sweat_smile:": "😅",
-                ":joy:": "😂",
-                ":sunglasses:": "😎",
-                ":star_struck:": "🤩",
-                ":thinking:": "🤔",
-                ":sleeping:": "😴",
-                ":pensive:": "😔",
-                ":grin:": "😁",
-                ":wink:": "😉",
-                ":kiss:": "😘",
-                ":yum:": "😋",
-                ":clap:": "👏",
-                ":wave:": "👋",
-                ":muscle:": "💪",
-                ":raised_hands:": "🙌",
-                ":pray:": "🙏",
-                ":sparkles:": "✨",
-                ":biceps:": "💪",
-                ":robot:": "🤖",
-                ":alien:": "👽",
-                ":unicorn:": "🦄",
-                ":santa:": "🎅",
-                ":party:": "🥳",
-                ":exploding_head:": "🤯",
-                ":shushing:": "🤫",
-                ":nerd:": "🤓",
-                ":woozy:": "🥴",
-                ":facepalm:": "🤦",
-                ":mind_blown:": "🤯",
-                ":innocent:": "😇",
-                ":speaking_head:": "🗣️",
-                ":fearful:": "😨",
-
-                // Food & Drinks
-                ":birthday:": "🎂",
-                ":champagne:": "🍾",
-                ":pizza:": "🍕",
-                ":hamburger:": "🍔",
-                ":popcorn:": "🍿",
-                ":taco:": "🌮",
-                ":coffee:": "☕",
-                ":beer:": "🍺",
-                ":wine_glass:": "🍷",
-                ":cake:": "🍰",
-                ":cocktail:": "🍸",
-                ":donut:": "🍩",
-                ":cookie:": "🍪",
-                ":chocolate:": "🍫",
-                ":fries:": "🍟",
-                ":icecream:": "🍦",
-                ":sushi:": "🍣",
-                ":hotdog:": "🌭",
-                ":avocado:": "🥑",
-
-                // Animals & Nature
-                ":rose:": "🌹",
-                ":sunflower:": "🌻",
-                ":bouquet:": "💐",
-                ":leaf:": "🍃",
-                ":dog:": "🐶",
-                ":cat:": "🐱",
-                ":panda:": "🐼",
-                ":monkey:": "🐵",
-                ":turtle:": "🐢",
-                ":whale:": "🐳",
-                ":shark:": "🦈",
-                ":soccer:": "⚽",
-                ":basketball:": "🏀",
-                ":football:": "🏈",
-                ":tennis:": "🎾",
-                ":guitar:": "🎸",
-                ":microphone:": "🎤",
-                ":video_game:": "🎮",
-                ":headphones:": "🎧",
-                ":camera:": "📷",
-                ":computer:": "💻",
-                ":phone:": "📱",
-                ":lightbulb:": "💡",
-
-                // Symbols & Misc
-                ":check:": "✔️",
-                ":x:": "❌",
-                ":warning:": "⚠️",
-                ":question:": "❓",
-                ":exclamation:": "❗",
-                ":100:": "💯",
-                ":money:": "💰",
-                ":crown:": "👑",
-                ":lock:": "🔒",
-                ":unlock:": "🔓",
-                ":key:": "🔑",
-                ":rainbow:": "🌈",
-                ":star:": "⭐",
-                ":boom:": "💥",
-                ":hourglass:": "⏳",
-            };
-
-
-            function escapeHTML(str) {
-                return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             }
+        }
 
-            function escapeAttribute(str) {
-                return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            }
+        document.getElementById('replyIndicator').addEventListener('mouseenter', () => {
+            const replyIndicator = document.getElementById('replyIndicator');
+            replyIndicator.classList.remove('collapsed');
+        });
 
-            function processMessage(text) {
-                const urlRegex = /(https?:\/\/[^\s]+)/g;
-                const parts = text.split(urlRegex);
+        document.getElementById('replyIndicator').addEventListener('mouseleave', () => {
+            const replyIndicator = document.getElementById('replyIndicator');
+            setTimeout(() => {
+                replyIndicator.classList.add('collapsed');
+            }, 5000);
+        });
 
-                if (parts.length === 3 && parts[0] === "" && parts[2] === "" && parts[1].match(/\.(jpeg|jpg|gif|png|apng|jfif|webp|avif|pjpeg|pjp|svg|mp4|mp3)$/i)) {
-                    if (parts[1].match(/\.mp4$/i)) {
-                        return `<video controls style="max-width: 300px; border-radius: 8px;"><source src="${escapeAttribute(parts[1])}" type="video/mp4">Your browser does not support the video tag.</video>`;
-                    } else if (parts[1].match(/\.mp3$/i)) {
-                        return `<audio controls style="max-width: 300px;"><source src="${escapeAttribute(parts[1])}" type="audio/mpeg">Your browser does not support the audio tag.</audio>`;
-                    } else if (localStorage.getItem('loadImageEmbeds') === 'true') {
-                        return `<img src="${escapeAttribute(parts[1])}" style="max-width: 300px; border-radius: 8px;">`;
-                    } else {
-                        return `<a href="${escapeAttribute(parts[1])}" target="_blank">${escapeHTML(parts[1])}</a>`;
-                    }
+
+        const emojiMap = {
+            // Faces
+            ":sob:": "😭",
+            ":smile:": "😃",
+            ":heart:": "❤️",
+            ":broken_heart:": "💔",
+            ":thumbsup:": "👍",
+            ":fire:": "🔥",
+            ":laughing:": "😆",
+            ":confused:": "😕",
+            ":cry:": "😢",
+            ":sweat:": "😅",
+            ":sweat_smile:": "😅",
+            ":joy:": "😂",
+            ":sunglasses:": "😎",
+            ":star_struck:": "🤩",
+            ":thinking:": "🤔",
+            ":sleeping:": "😴",
+            ":pensive:": "😔",
+            ":grin:": "😁",
+            ":wink:": "😉",
+            ":kiss:": "😘",
+            ":yum:": "😋",
+            ":clap:": "👏",
+            ":wave:": "👋",
+            ":muscle:": "💪",
+            ":raised_hands:": "🙌",
+            ":pray:": "🙏",
+            ":sparkles:": "✨",
+            ":biceps:": "💪",
+            ":robot:": "🤖",
+            ":alien:": "👽",
+            ":unicorn:": "🦄",
+            ":santa:": "🎅",
+            ":party:": "🥳",
+            ":exploding_head:": "🤯",
+            ":shushing:": "🤫",
+            ":nerd:": "🤓",
+            ":woozy:": "🥴",
+            ":facepalm:": "🤦",
+            ":mind_blown:": "🤯",
+            ":innocent:": "😇",
+            ":speaking_head:": "🗣️",
+            ":fearful:": "😨",
+
+            // Food & Drinks
+            ":birthday:": "🎂",
+            ":champagne:": "🍾",
+            ":pizza:": "🍕",
+            ":hamburger:": "🍔",
+            ":popcorn:": "🍿",
+            ":taco:": "🌮",
+            ":coffee:": "☕",
+            ":beer:": "🍺",
+            ":wine_glass:": "🍷",
+            ":cake:": "🍰",
+            ":cocktail:": "🍸",
+            ":donut:": "🍩",
+            ":cookie:": "🍪",
+            ":chocolate:": "🍫",
+            ":fries:": "🍟",
+            ":icecream:": "🍦",
+            ":sushi:": "🍣",
+            ":hotdog:": "🌭",
+            ":avocado:": "🥑",
+
+            // Animals & Nature
+            ":rose:": "🌹",
+            ":sunflower:": "🌻",
+            ":bouquet:": "💐",
+            ":leaf:": "🍃",
+            ":dog:": "🐶",
+            ":cat:": "🐱",
+            ":panda:": "🐼",
+            ":monkey:": "🐵",
+            ":turtle:": "🐢",
+            ":whale:": "🐳",
+            ":shark:": "🦈",
+            ":soccer:": "⚽",
+            ":basketball:": "🏀",
+            ":football:": "🏈",
+            ":tennis:": "🎾",
+            ":guitar:": "🎸",
+            ":microphone:": "🎤",
+            ":video_game:": "🎮",
+            ":headphones:": "🎧",
+            ":camera:": "📷",
+            ":computer:": "💻",
+            ":phone:": "📱",
+            ":lightbulb:": "💡",
+
+            // Symbols & Misc
+            ":check:": "✔️",
+            ":x:": "❌",
+            ":warning:": "⚠️",
+            ":question:": "❓",
+            ":exclamation:": "❗",
+            ":100:": "💯",
+            ":money:": "💰",
+            ":crown:": "👑",
+            ":lock:": "🔒",
+            ":unlock:": "🔓",
+            ":key:": "🔑",
+            ":rainbow:": "🌈",
+            ":star:": "⭐",
+            ":boom:": "💥",
+            ":hourglass:": "⏳",
+        };
+
+
+        function escapeHTML(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function escapeAttribute(str) {
+            return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function processMessage(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const parts = text.split(urlRegex);
+
+            if (parts.length === 3 && parts[0] === "" && parts[2] === "" && parts[1].match(/\.(jpeg|jpg|gif|png|apng|jfif|webp|avif|pjpeg|pjp|svg|mp4|mp3)$/i)) {
+                if (parts[1].match(/\.mp4$/i)) {
+                    return `<video controls style="max-width: 300px; border-radius: 8px;"><source src="${escapeAttribute(parts[1])}" type="video/mp4">Your browser does not support the video tag.</video>`;
+                } else if (parts[1].match(/\.mp3$/i)) {
+                    return `<audio controls style="max-width: 300px;"><source src="${escapeAttribute(parts[1])}" type="audio/mpeg">Your browser does not support the audio tag.</audio>`;
+                } else if (localStorage.getItem('loadImageEmbeds') === 'true') {
+                    return `<img src="${escapeAttribute(parts[1])}" style="max-width: 300px; border-radius: 8px;">`;
+                } else {
+                    return `<a href="${escapeAttribute(parts[1])}" target="_blank">${escapeHTML(parts[1])}</a>`;
                 }
+            }
 
-                let result = '';
-                for (let part of parts) {
-                    if (part.match(urlRegex)) {
-                        if (part.match(/\.(jpeg|jpg|gif|png|apng|jfif|webp|avif|pjpeg|pjp|svg)$/i)) {
-                            if (localStorage.getItem('loadImageEmbeds') === 'true') {
-                                result += `<br><img src="${escapeAttribute(part)}" style="max-width: 300px; max-height: 300px; border-radius: 8px;">`;
-                            } else {
-                                result += `<a href="${escapeAttribute(part)}" target="_blank">${escapeHTML(part)}</a>`;
-                            }
-                        } else if (part.match(/\.mp4$/i)) {
-                            result += `<br><video controls style="max-width: 300px; border-radius: 8px;"><source src="${escapeAttribute(part)}" type="video/mp4">Your browser does not support the video tag.</video>`;
-                        } else if (part.match(/\.mp3$/i)) {
-                            result += `<br><audio controls style="max-width: 300px;"><source src="${escapeAttribute(part)}" type="audio/mpeg">Your browser does not support the audio tag.</audio>`;
+            let result = '';
+            for (let part of parts) {
+                if (part.match(urlRegex)) {
+                    if (part.match(/\.(jpeg|jpg|gif|png|apng|jfif|webp|avif|pjpeg|pjp|svg)$/i)) {
+                        if (localStorage.getItem('loadImageEmbeds') === 'true') {
+                            result += `<br><img src="${escapeAttribute(part)}" style="max-width: 300px; max-height: 300px; border-radius: 8px;">`;
+                        } else {
+                            result += `<a href="${escapeAttribute(part)}" target="_blank">${escapeHTML(part)}</a>`;
                         }
-                        else if (part.includes("youtube.com") || part.includes("youtu.be")) {
-                            if (localStorage.getItem('loadYouTubeEmbeds') === 'true') {
-                                let videoId = part.match(/[?&]v=([^&#]+)/) ? part.match(/[?&]v=([^&#]+)/)[1] : part.split("youtu.be/")[1];
-                                if (videoId) {
-                                    result += `<br><iframe width="300" height="180" src="https://www.youtube.com/embed/${escapeAttribute(videoId)}" frameborder="0" allowfullscreen></iframe>`;
-                                } else {
-                                    result += `<a href="${escapeAttribute(part)}" target="_blank">${escapeHTML(part)}</a>`;
-                                }
+                    } else if (part.match(/\.mp4$/i)) {
+                        result += `<br><video controls style="max-width: 300px; border-radius: 8px;"><source src="${escapeAttribute(part)}" type="video/mp4">Your browser does not support the video tag.</video>`;
+                    } else if (part.match(/\.mp3$/i)) {
+                        result += `<br><audio controls style="max-width: 300px;"><source src="${escapeAttribute(part)}" type="audio/mpeg">Your browser does not support the audio tag.</audio>`;
+                    }
+                    else if (part.includes("youtube.com") || part.includes("youtu.be")) {
+                        if (localStorage.getItem('loadYouTubeEmbeds') === 'true') {
+                            let videoId = part.match(/[?&]v=([^&#]+)/) ? part.match(/[?&]v=([^&#]+)/)[1] : part.split("youtu.be/")[1];
+                            if (videoId) {
+                                result += `<br><iframe width="300" height="180" src="https://www.youtube.com/embed/${escapeAttribute(videoId)}" frameborder="0" allowfullscreen></iframe>`;
                             } else {
                                 result += `<a href="${escapeAttribute(part)}" target="_blank">${escapeHTML(part)}</a>`;
                             }
@@ -269,35 +267,38 @@
                             result += `<a href="${escapeAttribute(part)}" target="_blank">${escapeHTML(part)}</a>`;
                         }
                     } else {
-                        part = escapeHTML(part);
-                        
-                        ////////////////////////////// MARKDOWN
-                        // bold
-                        part = part.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-
-                        // italic
-                        part = part.replace(/\*(.*?)\*/g, '<i>$1</i>');
-
-                        // headings
-                        part = part.replace(/^###\s*(.+)$/gm, '<h3>$1</h3>'); // 3
-                        part = part.replace(/^##\s*(.+)$/gm, '<h2>$1</h2>'); // 2
-                        part = part.replace(/^#\s*(.+)$/gm, '<h1>$1</h1>'); // 1
-
-                        // code
-                        part = part.replace(/\`(.*?)\`/g, '<span id="code">$1</span>');
-
-                        // underline
-                        part = part.replace(/\__(.*?)\__/g, '<u>$1</u>'); // 2
-                        part = part.replace(/\_(.*?)\_/g, '<i>$1</i>'); // 1
-                        ////////////////////////////// MARKDOWN END
-
-                        result += part;
+                        result += `<a href="${escapeAttribute(part)}" target="_blank">${escapeHTML(part)}</a>`;
                     }
-                }
-                return result;
-            }
+                } else {
+                    part = escapeHTML(part);
 
-            function formatTimestamp(ts) {
+                    ////////////////////////////// MARKDOWN
+                    // bold
+                    part = part.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+                    // italic
+                    part = part.replace(/\*(.*?)\*/g, '<i>$1</i>');
+
+                    // headings
+                    part = part.replace(/^###\s*(.+)$/gm, '<h3>$1</h3>'); // 3
+                    part = part.replace(/^##\s*(.+)$/gm, '<h2>$1</h2>'); // 2
+                    part = part.replace(/^#\s*(.+)$/gm, '<h1>$1</h1>'); // 1
+
+                    // code
+                    part = part.replace(/\`(.*?)\`/g, '<span id="code">$1</span>');
+
+                    // underline
+                    part = part.replace(/\__(.*?)\__/g, '<u>$1</u>'); // 2
+                    part = part.replace(/\_(.*?)\_/g, '<i>$1</i>'); // 1
+                    ////////////////////////////// MARKDOWN END
+
+                    result += part;
+                }
+            }
+            return result;
+        }
+
+        function formatTimestamp(ts) {
             const date = new Date(ts);
             let hours = date.getHours();
             let minutes = date.getMinutes();
@@ -313,54 +314,54 @@
             return `${month}/${day}/${year} at ${hours}:${minutes}${ampm}`;
         }
 
-            function submitForm(e) {
-                e.preventDefault();
-                const messageInput = document.getElementById('message');
-                let message = messageInput.value.trim();
-                if (message === "") return;
-                for (let code in emojiMap) {
-                    message = message.replaceAll(code, emojiMap[code]);
-                }
-                const user = auth.currentUser;
-                const newMessageRef = push(messagesRef);
+        function submitForm(e) {
+            e.preventDefault();
+            const messageInput = document.getElementById('message');
+            let message = messageInput.value.trim();
+            if (message === "") return;
+            for (let code in emojiMap) {
+                message = message.replaceAll(code, emojiMap[code]);
+            }
+            const user = auth.currentUser;
+            const newMessageRef = push(messagesRef);
 
-                const messageData = {
-                    name: user.displayName || "Username Error",
-                    message: message,
-                    photo: (user && user.photoURL) ? user.photoURL : "default.png",
-                    timestamp: Date.now()
+            const messageData = {
+                name: user.displayName || "Username Error",
+                message: message,
+                photo: (user && user.photoURL) ? user.photoURL : "default.png",
+                timestamp: Date.now()
+            };
+            if (currentReply) {
+                messageData.reply = {
+                    author: currentReply.author,
+                    messageText: currentReply.messageText
                 };
-                if (currentReply) {
-                    messageData.reply = {
-                        author: currentReply.author,
-                        messageText: currentReply.messageText
-                    };
-                }
-
-                set(newMessageRef, messageData);
-                messageInput.value = "";
-                if (currentReply) cancelReply();
-                if (user) {
-                    remove(ref(database, 'typing/' + user.uid));
-                }
             }
 
-            const warningMessage = document.getElementById("warning-message");
-            if (warningMessage) {
-                warningMessage.style.display = "none";
+            set(newMessageRef, messageData);
+            messageInput.value = "";
+            if (currentReply) cancelReply();
+            if (user) {
+                remove(ref(database, 'typing/' + user.uid));
             }
+        }
+
+        const warningMessage = document.getElementById("warning-message");
+        if (warningMessage) {
+            warningMessage.style.display = "none";
+        }
 
 
-            document.getElementById('message').addEventListener("input", function () {
-                let message = document.getElementById('message').value;
-                for (let code in emojiMap) {
-                    message = message.replaceAll(code, emojiMap[code]);
-                }
-                document.getElementById('message').value = message;
-            });
+        document.getElementById('message').addEventListener("input", function () {
+            let message = document.getElementById('message').value;
+            for (let code in emojiMap) {
+                message = message.replaceAll(code, emojiMap[code]);
+            }
+            document.getElementById('message').value = message;
+        });
 
 
-            function loadMessages() {
+        function loadMessages() {
             const messagesList = document.getElementById("messages");
             onChildAdded(messagesRef, (snapshot) => {
                 const msg = snapshot.val();
@@ -417,304 +418,304 @@
             });
         }
 
-            function scrollToBottom() {
-                const messagesList = document.getElementById("messages");
-                messagesList.scrollTop = messagesList.scrollHeight;
-            }
+        function scrollToBottom() {
+            const messagesList = document.getElementById("messages");
+            messagesList.scrollTop = messagesList.scrollHeight;
+        }
 
-            function logout() {
-                const user = auth.currentUser;
-                if (user) {
-                    remove(ref(database, 'typing/' + user.uid));
+        function logout() {
+            const user = auth.currentUser;
+            if (user) {
+                remove(ref(database, 'typing/' + user.uid));
+            }
+            signOut(auth).then(() => {
+                document.getElementById('LOGOUTTHANKSNOMAFORTHECODEongioweyouone').style.display = 'none';
+                signInForm.style.display = 'block';
+            }).catch(error => {
+                console.error("Error logging out:", error.message);
+            });
+        }
+
+        function isNearBottom() {
+            const messagesList = document.getElementById("messages");
+            return messagesList.scrollHeight - messagesList.scrollTop - messagesList.clientHeight < 150;
+        }
+        const typingStatus = {};
+
+        function updateTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            const messagesList = document.getElementById("messages");
+            const user = auth.currentUser;
+            const typingUsers = [];
+            for (const uid in typingStatus) {
+                if (!user || uid !== user.uid) {
+                    typingUsers.push(typingStatus[uid]);
                 }
-                signOut(auth).then(() => {
-                    document.getElementById('LOGOUTTHANKSNOMAFORTHECODEongioweyouone').style.display = 'none';
-                    signInForm.style.display = 'block';
-                }).catch(error => {
-                    console.error("Error logging out:", error.message);
-                });
             }
-
-            function isNearBottom() {
-                const messagesList = document.getElementById("messages");
-                return messagesList.scrollHeight - messagesList.scrollTop - messagesList.clientHeight < 150;
-            }
-            const typingStatus = {};
-
-            function updateTypingIndicator() {
-                const indicator = document.getElementById('typingIndicator');
-                const messagesList = document.getElementById("messages");
-                const user = auth.currentUser;
-                const typingUsers = [];
-                for (const uid in typingStatus) {
-                    if (!user || uid !== user.uid) {
-                        typingUsers.push(typingStatus[uid]);
-                    }
+            if (typingUsers.length > 0) {
+                indicator.style.display = "flex";
+                messagesList.style.height = "calc(100vh - 134px)";
+                if (isNearBottom()) {
+                    scrollToBottom();
                 }
-                if (typingUsers.length > 0) {
-                    indicator.style.display = "flex";
-                    messagesList.style.height = "calc(100vh - 134px)";
-                    if (isNearBottom()) {
-                        scrollToBottom();
-                    }
-                    let text;
-                    if (typingUsers.length === 1) {
-                        text = typingUsers[0] + " is typing...";
-                    } else {
-                        text = typingUsers.join(', ') + " are typing...";
-                    }
-                    indicator.innerHTML = '<img src="typing.svg" alt="Typing">' + text;
+                let text;
+                if (typingUsers.length === 1) {
+                    text = typingUsers[0] + " is typing...";
                 } else {
-                    indicator.style.display = "none";
-                    messagesList.style.height = "calc(100vh - 105px)";
+                    text = typingUsers.join(', ') + " are typing...";
                 }
+                indicator.innerHTML = '<img src="typing.svg" alt="Typing">' + text;
+            } else {
+                indicator.style.display = "none";
+                messagesList.style.height = "calc(100vh - 105px)";
             }
-            onChildAdded(typingRef, (snapshot) => {
-                const uid = snapshot.key;
-                const username = snapshot.val();
-                typingStatus[uid] = username;
-                updateTypingIndicator();
-            });
-            onChildChanged(typingRef, (snapshot) => {
-                const uid = snapshot.key;
-                const username = snapshot.val();
-                typingStatus[uid] = username;
-                updateTypingIndicator();
-            });
-            onChildRemoved(typingRef, (snapshot) => {
-                const uid = snapshot.key;
-                delete typingStatus[uid];
-                updateTypingIndicator();
-            });
+        }
+        onChildAdded(typingRef, (snapshot) => {
+            const uid = snapshot.key;
+            const username = snapshot.val();
+            typingStatus[uid] = username;
+            updateTypingIndicator();
+        });
+        onChildChanged(typingRef, (snapshot) => {
+            const uid = snapshot.key;
+            const username = snapshot.val();
+            typingStatus[uid] = username;
+            updateTypingIndicator();
+        });
+        onChildRemoved(typingRef, (snapshot) => {
+            const uid = snapshot.key;
+            delete typingStatus[uid];
+            updateTypingIndicator();
+        });
 
-            function loadSettings() {
-                if (localStorage.getItem('loadYouTubeEmbeds') === null) {
-                    localStorage.setItem('loadYouTubeEmbeds', 'true');
-                }
-                if (localStorage.getItem('loadImageEmbeds') === null) {
-                    localStorage.setItem('loadImageEmbeds', 'true');
-                }
-                if (localStorage.getItem('unloadMessages') === null) {
-                    localStorage.setItem('unloadMessages', 'true');
-                }
-                if (localStorage.getItem('pingSound') === null) {
-                    localStorage.setItem('pingSound', 'true');
-                }
-                document.getElementById('loadYouTubeEmbedsC').checked = localStorage.getItem('loadYouTubeEmbeds') === 'true';
-                document.getElementById('loadImageEmbedsC').checked = localStorage.getItem('loadImageEmbeds') === 'true';
-                document.getElementById('unloadMessagesC').checked = localStorage.getItem('unloadMessages') === 'true';
-                document.getElementById('pingSoundC').checked = localStorage.getItem('pingSound') === 'true';
+        function loadSettings() {
+            if (localStorage.getItem('loadYouTubeEmbeds') === null) {
+                localStorage.setItem('loadYouTubeEmbeds', 'true');
             }
+            if (localStorage.getItem('loadImageEmbeds') === null) {
+                localStorage.setItem('loadImageEmbeds', 'true');
+            }
+            if (localStorage.getItem('unloadMessages') === null) {
+                localStorage.setItem('unloadMessages', 'true');
+            }
+            if (localStorage.getItem('pingSound') === null) {
+                localStorage.setItem('pingSound', 'true');
+            }
+            document.getElementById('loadYouTubeEmbedsC').checked = localStorage.getItem('loadYouTubeEmbeds') === 'true';
+            document.getElementById('loadImageEmbedsC').checked = localStorage.getItem('loadImageEmbeds') === 'true';
+            document.getElementById('unloadMessagesC').checked = localStorage.getItem('unloadMessages') === 'true';
+            document.getElementById('pingSoundC').checked = localStorage.getItem('pingSound') === 'true';
+        }
 
-            function attachChatEventListeners() {
-                const messageForm = document.getElementById('message-form');
-                if (messageForm) {
-                    messageForm.addEventListener('submit', submitForm);
-                }
-                const messageInput = document.getElementById('message');
+        function attachChatEventListeners() {
+            const messageForm = document.getElementById('message-form');
+            if (messageForm) {
+                messageForm.addEventListener('submit', submitForm);
+            }
+            const messageInput = document.getElementById('message');
 
-                if (messageInput) {
-                    messageInput.addEventListener('input', function () {
-                        const maxLength = 300;
-                        const remaining = maxLength - this.value.length;
+            if (messageInput) {
+                messageInput.addEventListener('input', function () {
+                    const maxLength = 300;
+                    const remaining = maxLength - this.value.length;
+                    const charLimit = document.getElementById('charLimit');
+                    if (charLimit) {
+                        charLimit.textContent = remaining;
+                    }
+                    const user = auth.currentUser;
+                    if (!user) return;
+                    if (this.value.trim().length > 0) {
+                        set(ref(database, 'typing/' + user.uid), user.displayName || "Unknown");
+                        clearTimeout(typingTimeout);
+                        typingTimeout = setTimeout(() => {
+                            remove(ref(database, 'typing/' + user.uid));
+                        }, 3000);
+                    } else {
+                        remove(ref(database, 'typing/' + user.uid));
+                        clearTimeout(typingTimeout);
+                    }
+                });
+                messageInput.addEventListener('keydown', function (e) {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        const sendButton = document.getElementById('send');
+                        if (sendButton) {
+                            sendButton.click();
+                        }
                         const charLimit = document.getElementById('charLimit');
                         if (charLimit) {
-                            charLimit.textContent = remaining;
+                            charLimit.textContent = "300";
                         }
-                        const user = auth.currentUser;
-                        if (!user) return;
-                        if (this.value.trim().length > 0) {
-                            set(ref(database, 'typing/' + user.uid), user.displayName || "Unknown");
-                            clearTimeout(typingTimeout);
-                            typingTimeout = setTimeout(() => {
-                                remove(ref(database, 'typing/' + user.uid));
-                            }, 3000);
-                        } else {
-                            remove(ref(database, 'typing/' + user.uid));
-                            clearTimeout(typingTimeout);
-                        }
-                    });
-                    messageInput.addEventListener('keydown', function (e) {
-                        if (e.key === "Enter") {
-                            e.preventDefault();
-                            const sendButton = document.getElementById('send');
-                            if (sendButton) {
-                                sendButton.click();
-                            }
-                            const charLimit = document.getElementById('charLimit');
-                            if (charLimit) {
-                                charLimit.textContent = "300";
-                            }
-                        }
-                    });
-                }
-                const settingsButton = document.getElementById('settings');
-                if (settingsButton) {
-                    settingsButton.addEventListener('click', () => {
-                        if (auth.currentUser) {
-                            document.getElementById('settings-pfp').value = auth.currentUser.photoURL || "default.png";
-                        }
-                        loadSettings();
-                        document.getElementById('modal-settings').style.display = "flex";
-                    });
-                }
-                const feedbackButton = document.getElementById('feedback');
-                if (feedbackButton) {
-                    feedbackButton.addEventListener('click', () => {
-                        document.getElementById('modal-feedback').style.display = "flex";
-                    });
-                }
-
-
-
-                const helpButton = document.getElementById('help');
-                if (helpButton) {
-                    helpButton.addEventListener('click', () => {
-                        document.getElementById('modal-help').style.display = "flex";
-                    });
-                }
-                const logoutButton = document.getElementById('LOGOUTTHANKSNOMAFORTHECODEongioweyouone');
-                if (logoutButton) {
-                    logoutButton.addEventListener('click', () => {
-                        logout();
-                    });
-                }
-
-                const saveSettingsButton = document.getElementById('saveSettings');
-                if (saveSettingsButton) {
-                    saveSettingsButton.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const newPfp = document.getElementById('settings-pfp').value.trim() || "default.png";
-
-                        localStorage.setItem('loadYouTubeEmbeds', document.getElementById('loadYouTubeEmbedsC').checked);
-                        localStorage.setItem('loadImageEmbeds', document.getElementById('loadImageEmbedsC').checked);
-                        localStorage.setItem('unloadMessages', document.getElementById('unloadMessagesC').checked);
-                        localStorage.setItem('pingSound', document.getElementById('pingSoundC').checked);
-
-                        if (auth.currentUser) {
-                            updateProfile(auth.currentUser, { photoURL: newPfp })
-                                .catch(error => console.error("Error updating profile picture:", error.message));
-                        }
-
-                        document.getElementById('modal-settings').style.display = "none";
-                    });
-                }
-
-                const savePFPButton = document.getElementById('savePFP');
-                if (savePFPButton) {
-                    savePFPButton.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const newPfp = document.getElementById('settings-pfp').value.trim() || "default.png";
-                        if (auth.currentUser) {
-                            updateProfile(auth.currentUser, { photoURL: newPfp })
-                                .catch(error => console.error("Error updating profile picture:", error.message));
-                        }
-                        document.getElementById('modal-content').style.display = "none";
-                    });
-                }
-
-                document.querySelectorAll('.close').forEach(btn => {
-                    btn.addEventListener('click', function () {
-                        this.parentElement.parentElement.style.display = "none";
-                    });
-                });
-                window.addEventListener('click', function (e) {
-                    if (e.target.classList.contains('modal')) {
-                        e.target.style.display = "none";
                     }
                 });
             }
-            const userSettingsBTN = document.querySelector('.user-settingsBTN');
-            const modal = document.getElementById('user-settings');
-            const closeButton = modal.querySelector('.close');
-            const saveButton = document.getElementById('saveStatus');
-            const statusInput = document.getElementById('status');
-            const charLimitDisplay = document.getElementById('charLimit2');
-            const charLimit = 40;
-
-
-            if (userSettingsBTN) {
-                userSettingsBTN.addEventListener('click', () => {
-                    modal.style.display = "flex";
+            const settingsButton = document.getElementById('settings');
+            if (settingsButton) {
+                settingsButton.addEventListener('click', () => {
+                    if (auth.currentUser) {
+                        document.getElementById('settings-pfp').value = auth.currentUser.photoURL || "default.png";
+                    }
+                    loadSettings();
+                    document.getElementById('modal-settings').style.display = "flex";
+                });
+            }
+            const feedbackButton = document.getElementById('feedback');
+            if (feedbackButton) {
+                feedbackButton.addEventListener('click', () => {
+                    document.getElementById('modal-feedback').style.display = "flex";
                 });
             }
 
 
-            if (closeButton) {
-                closeButton.addEventListener('click', () => {
-                    modal.style.display = "none";
+
+            const helpButton = document.getElementById('help');
+            if (helpButton) {
+                helpButton.addEventListener('click', () => {
+                    document.getElementById('modal-help').style.display = "flex";
+                });
+            }
+            const logoutButton = document.getElementById('LOGOUTTHANKSNOMAFORTHECODEongioweyouone');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', () => {
+                    logout();
                 });
             }
 
+            const saveSettingsButton = document.getElementById('saveSettings');
+            if (saveSettingsButton) {
+                saveSettingsButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const newPfp = document.getElementById('settings-pfp').value.trim() || "default.png";
 
-            statusInput.addEventListener('input', () => {
-                const remainingChars = charLimit - statusInput.value.length;
-                charLimitDisplay.textContent = remainingChars;
+                    localStorage.setItem('loadYouTubeEmbeds', document.getElementById('loadYouTubeEmbedsC').checked);
+                    localStorage.setItem('loadImageEmbeds', document.getElementById('loadImageEmbedsC').checked);
+                    localStorage.setItem('unloadMessages', document.getElementById('unloadMessagesC').checked);
+                    localStorage.setItem('pingSound', document.getElementById('pingSoundC').checked);
 
+                    if (auth.currentUser) {
+                        updateProfile(auth.currentUser, { photoURL: newPfp })
+                            .catch(error => console.error("Error updating profile picture:", error.message));
+                    }
 
-                if (remainingChars <= 5) {
-                    charLimitDisplay.style.color = 'red';
-                } else {
-                    charLimitDisplay.style.color = '';
+                    document.getElementById('modal-settings').style.display = "none";
+                });
+            }
+
+            const savePFPButton = document.getElementById('savePFP');
+            if (savePFPButton) {
+                savePFPButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const newPfp = document.getElementById('settings-pfp').value.trim() || "default.png";
+                    if (auth.currentUser) {
+                        updateProfile(auth.currentUser, { photoURL: newPfp })
+                            .catch(error => console.error("Error updating profile picture:", error.message));
+                    }
+                    document.getElementById('modal-content').style.display = "none";
+                });
+            }
+
+            document.querySelectorAll('.close').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    this.parentElement.parentElement.style.display = "none";
+                });
+            });
+            window.addEventListener('click', function (e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = "none";
                 }
             });
+        }
+        const userSettingsBTN = document.querySelector('.user-settingsBTN');
+        const modal = document.getElementById('user-settings');
+        const closeButton = modal.querySelector('.close');
+        const saveButton = document.getElementById('saveStatus');
+        const statusInput = document.getElementById('status');
+        const charLimitDisplay = document.getElementById('charLimit2');
+        const charLimit = 40;
 
 
-            if (saveButton) {
-                saveButton.addEventListener('click', () => {
-                    const status = statusInput.value.trim();
-                    if (status !== "") {
-                        document.getElementById('status-message').textContent = `Your status: ${status}`;
-                        statusInput.value = "";
-                        modal.style.display = "none";
-                        charLimitDisplay.textContent = charLimit;
+        if (userSettingsBTN) {
+            userSettingsBTN.addEventListener('click', () => {
+                modal.style.display = "flex";
+            });
+        }
 
-                        const user = auth.currentUser;
-                        if (user) {
-                            const userStatusRef = ref(database, "users/" + user.uid + "/status");
-                            set(userStatusRef, status);
-                        }
-                    }
-                });
+
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                modal.style.display = "none";
+            });
+        }
+
+
+        statusInput.addEventListener('input', () => {
+            const remainingChars = charLimit - statusInput.value.length;
+            charLimitDisplay.textContent = remainingChars;
+
+
+            if (remainingChars <= 5) {
+                charLimitDisplay.style.color = 'red';
+            } else {
+                charLimitDisplay.style.color = '';
             }
+        });
 
 
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    const userPresenceRef = ref(database, "presence/" + user.uid);
-                    set(userPresenceRef, { name: user.displayName || "Unknown", photo: user.photoURL || "default.png", userid: user.uid });
-                    onDisconnect(userPresenceRef).remove();
+        if (saveButton) {
+            saveButton.addEventListener('click', () => {
+                const status = statusInput.value.trim();
+                if (status !== "") {
+                    document.getElementById('status-message').textContent = `Your status: ${status}`;
+                    statusInput.value = "";
+                    modal.style.display = "none";
+                    charLimitDisplay.textContent = charLimit;
 
-                    const presenceRef = ref(database, "presence");
+                    const user = auth.currentUser;
+                    if (user) {
+                        const userStatusRef = ref(database, "users/" + user.uid + "/status");
+                        set(userStatusRef, status);
+                    }
+                }
+            });
+        }
 
 
-                    setInterval(() => {
-                        onValue(presenceRef, (snapshot) => {
-                            let onlineUsers = "";
-                            const userPromises = [];
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userPresenceRef = ref(database, "presence/" + user.uid);
+                set(userPresenceRef, { name: user.displayName || "Unknown", photo: user.photoURL || "default.png", userid: user.uid });
+                onDisconnect(userPresenceRef).remove();
 
-                            snapshot.forEach(childSnapshot => {
-                                const userInfo = childSnapshot.val();
-                                const userStatusRef = ref(database, "users/" + childSnapshot.key + "/status");
+                const presenceRef = ref(database, "presence");
 
-                                const statusPromise = new Promise((resolve) => {
-                                    onValue(userStatusRef, (statusSnapshot) => {
-                                        const status = statusSnapshot.val() || "";
-                                        resolve({ userInfo, status });
-                                    });
+
+                setInterval(() => {
+                    onValue(presenceRef, (snapshot) => {
+                        let onlineUsers = "";
+                        const userPromises = [];
+
+                        snapshot.forEach(childSnapshot => {
+                            const userInfo = childSnapshot.val();
+                            const userStatusRef = ref(database, "users/" + childSnapshot.key + "/status");
+
+                            const statusPromise = new Promise((resolve) => {
+                                onValue(userStatusRef, (statusSnapshot) => {
+                                    const status = statusSnapshot.val() || "";
+                                    resolve({ userInfo, status });
                                 });
-
-                                userPromises.push(statusPromise);
                             });
 
-                            Promise.all(userPromises).then(userStatusArray => {
-                                userStatusArray.forEach(({ userInfo, status }) => {
-                                    const truncatedStatusStr = status.length > 35 ? status.slice(0, 35) + '...' : status;
-                                    const escapedTruncatedStatus = escapeHTML(truncatedStatusStr);
-                                    const escapedFullStatus = escapeHTML(status);
-                                    updateFriendButtonIconForUser();
+                            userPromises.push(statusPromise);
+                        });
 
-                                    onlineUsers += `
+                        Promise.all(userPromises).then(userStatusArray => {
+                            userStatusArray.forEach(({ userInfo, status }) => {
+                                const truncatedStatusStr = status.length > 35 ? status.slice(0, 35) + '...' : status;
+                                const escapedTruncatedStatus = escapeHTML(truncatedStatusStr);
+                                const escapedFullStatus = escapeHTML(status);
+                                updateFriendButtonIconForUser();
+
+                                onlineUsers += `
                 <div style="display:flex;align-items:center;margin-bottom:5px;cursor:pointer;" class="swag" data-name="${userInfo.name}" data-photo="${userInfo.photo}" data-status="${escapedFullStatus}" data-userid="${userInfo.userid}">
                     <img src="${userInfo.photo}" style="width:30px;height:30px;border-radius:50%;margin-right:10px;" onerror="this.src='default.png'">
                     ${userInfo.name}
@@ -723,30 +724,30 @@
                     <span class="status-truncated" title="${escapedFullStatus}">${escapedTruncatedStatus}</span>
                 </div>
             `;
-                                });
-
-                                document.querySelector(".online").innerHTML = onlineUsers;
                             });
-                        });
-                    }, 2000);
 
-                    document.getElementById('chat-container').style.display = "block";
-                    document.getElementById('login-container').style.display = "none";
-                    const profileButtonImg = document.querySelector("#profile img");
-                    if (profileButtonImg) {
-                        profileButtonImg.src = user.photoURL || "default.png";
-                    }
-                    attachChatEventListeners();
-                    loadMessages();
-                } else {
-                    document.getElementById('chat-container').style.display = "none";
-                    document.getElementById('login-container').style.display = "flex";
-                    const profileButtonImg = document.querySelector("#profile img");
-                    if (profileButtonImg) {
-                        profileButtonImg.src = "default.png";
-                    }
+                            document.querySelector(".online").innerHTML = onlineUsers;
+                        });
+                    });
+                }, 2000);
+
+                document.getElementById('chat-container').style.display = "block";
+                document.getElementById('login-container').style.display = "none";
+                const profileButtonImg = document.querySelector("#profile img");
+                if (profileButtonImg) {
+                    profileButtonImg.src = user.photoURL || "default.png";
                 }
-            });
+                attachChatEventListeners();
+                loadMessages();
+            } else {
+                document.getElementById('chat-container').style.display = "none";
+                document.getElementById('login-container').style.display = "flex";
+                const profileButtonImg = document.querySelector("#profile img");
+                if (profileButtonImg) {
+                    profileButtonImg.src = "default.png";
+                }
+            }
+        });
 
         const pronounsInput = document.getElementById('pronouns_input');
         const savePronounsButton = document.getElementById('savePronouns');
@@ -783,7 +784,7 @@
             });
         }
 
-            let currentOpenElement = null;
+        let currentOpenElement = null;
 
         document.body.addEventListener("click", function (event) {
             const userElement = event.target.closest(".swag");
@@ -843,401 +844,401 @@
 
 
 
-            function login(e) {
-                e.preventDefault();
-                const email = document.getElementById("login-email").value;
-                const password = document.getElementById("login-password").value;
-                const username = document.getElementById("login-username").value.trim();
-                if (e.submitter && e.submitter.textContent.trim() === "Sign up") {
-                    if (!username) {
-                        document.getElementById("login-error").innerText = "Username is required for sign up.";
-                        return;
-                    }
-                    const profilePic = document.getElementById("login-pfp") ? document.getElementById("login-pfp").value.trim() : "default.png";
-                    const usernameRef = ref(database, "usernames/" + username);
-                    get(usernameRef).then((snapshot) => {
-                        if (snapshot.exists()) {
-                            document.getElementById("login-error").innerText = "Username already taken.";
-                        } else {
-                            createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
-                                updateProfile(userCredential.user, {
-                                    displayName: username,
-                                    photoURL: profilePic
-                                }).then(() => {
-                                    set(ref(database, "usernames/" + username), userCredential.user.uid);
-                                }).catch((error) => {
-                                    document.getElementById("login-error").innerText = error.message;
-                                });
+        function login(e) {
+            e.preventDefault();
+            const email = document.getElementById("login-email").value;
+            const password = document.getElementById("login-password").value;
+            const username = document.getElementById("login-username").value.trim();
+            if (e.submitter && e.submitter.textContent.trim() === "Sign up") {
+                if (!username) {
+                    document.getElementById("login-error").innerText = "Username is required for sign up.";
+                    return;
+                }
+                const profilePic = document.getElementById("login-pfp") ? document.getElementById("login-pfp").value.trim() : "default.png";
+                const usernameRef = ref(database, "usernames/" + username);
+                get(usernameRef).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        document.getElementById("login-error").innerText = "Username already taken.";
+                    } else {
+                        createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
+                            updateProfile(userCredential.user, {
+                                displayName: username,
+                                photoURL: profilePic
+                            }).then(() => {
+                                set(ref(database, "usernames/" + username), userCredential.user.uid);
                             }).catch((error) => {
                                 document.getElementById("login-error").innerText = error.message;
                             });
+                        }).catch((error) => {
+                            document.getElementById("login-error").innerText = error.message;
+                        });
+                    }
+                }).catch((error) => {
+                    document.getElementById("login-error").innerText = error.message;
+                });
+            } else {
+                signInWithEmailAndPassword(auth, email, password).then(() => {
+                    location.reload(); // Refresh the page after sign-in
+                }).catch((error) => {
+                    document.getElementById("login-error").innerText = error.message;
+                });
+            }
+        }
+        window.login = login;
+        window.addEventListener('beforeunload', function () {
+            const user = auth.currentUser;
+            if (user) {
+                remove(ref(database, 'typing/' + user.uid));
+            }
+        });
+        document.addEventListener("DOMContentLoaded", () => {
+            loadSettings();
+            const loadingIndicator = document.querySelector(".loadingDiv");
+            const loadingStatus = document.getElementById("loadingStatus");
+            loadingStatus.innerText = "Trying to sign you in...";
+            let messagesLoaded = false;
+
+            function waitForImages() {
+                const images = document.querySelectorAll("#messages img");
+                const imagePromises = Array.from(images).map(img => {
+                    return new Promise(resolve => {
+                        if (img.complete) {
+                            resolve();
+                        } else {
+                            img.addEventListener("load", resolve);
+                            img.addEventListener("error", resolve);
                         }
-                    }).catch((error) => {
-                        document.getElementById("login-error").innerText = error.message;
                     });
-                } else {
-                    signInWithEmailAndPassword(auth, email, password).then(() => {
-                        location.reload(); // Refresh the page after sign-in
-                    }).catch((error) => {
-                        document.getElementById("login-error").innerText = error.message;
+                });
+                return Promise.all(imagePromises);
+
+            }
+
+            function checkIfReady() {
+                if (messagesLoaded) {
+                    loadingStatus.innerText = "Loading images...";
+                    waitForImages().then(() => {
+                        scrollToBottom();
+                        loadingIndicator.style.display = "none";
                     });
                 }
             }
-            window.login = login;
-            window.addEventListener('beforeunload', function () {
-                const user = auth.currentUser;
+            onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    remove(ref(database, 'typing/' + user.uid));
+                    loadingStatus.innerText = "Loading messages...";
+                } else {
+                    document.getElementById('login-container').style.display = "flex";
+                    loadingIndicator.style.display = "none";
                 }
             });
-            document.addEventListener("DOMContentLoaded", () => {
-                loadSettings();
-                const loadingIndicator = document.querySelector(".loadingDiv");
-                const loadingStatus = document.getElementById("loadingStatus");
-                loadingStatus.innerText = "Trying to sign you in...";
-                let messagesLoaded = false;
 
-                function waitForImages() {
-                    const images = document.querySelectorAll("#messages img");
-                    const imagePromises = Array.from(images).map(img => {
-                        return new Promise(resolve => {
-                            if (img.complete) {
-                                resolve();
-                            } else {
-                                img.addEventListener("load", resolve);
-                                img.addEventListener("error", resolve);
-                            }
-                        });
-                    });
-                    return Promise.all(imagePromises);
+            setTimeout(() => {
+                messagesLoaded = true;
+                checkIfReady();
+            }, 4000);
+        });
 
+        function showPreview(src, type) {
+            const previewModal = document.getElementById('previewModal');
+            const previewContent = document.getElementById('previewContent');
+            if (type === 'image') {
+                previewContent.innerHTML = `<img src="${escapeAttribute(src)}" class="preview-content">`;
+            } else if (type === 'video') {
+                previewContent.innerHTML = `<video controls class="preview-content"><source src="${escapeAttribute(src)}" type="video/mp4">Your browser does not support the video tag.</video>`;
+            }
+            previewModal.style.display = 'flex';
+        }
+
+        document.addEventListener('click', function (event) {
+            const previewModal = document.getElementById('previewModal');
+            if (event.target === previewModal || event.target.classList.contains('preview-content')) {
+                previewModal.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const messagesList = document.getElementById('messages');
+            messagesList.addEventListener('click', function (event) {
+                if (event.target.tagName === 'IMG' && event.target.closest('li')) {
+                    showPreview(event.target.src, 'image');
+                } else if (event.target.tagName === 'VIDEO' && event.target.closest('li')) {
+                    showPreview(event.target.querySelector('source').src, 'video');
                 }
+            });
+        });
 
-                function checkIfReady() {
-                    if (messagesLoaded) {
-                        loadingStatus.innerText = "Loading images...";
-                        waitForImages().then(() => {
-                            scrollToBottom();
-                            loadingIndicator.style.display = "none";
+        function deleteMessage(messageId) {
+            const user = auth.currentUser;
+            if (user) {
+                const messageRef = ref(database, 'messages/' + messageId);
+                get(messageRef).then((snapshot) => {
+                    if (snapshot.exists() && snapshot.val().name === user.displayName) {
+                        remove(messageRef).then(() => {
+                            const messageElement = document.getElementById(messageId);
+                            if (messageElement) {
+                                messageElement.remove();
+                            }
+                        }).catch((error) => {
+                            console.error("Error deleting message:", error.message);
                         });
                     }
-                }
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        loadingStatus.innerText = "Loading messages...";
+                }).catch((error) => {
+                    console.error("Error fetching message:", error.message);
+                });
+            }
+        }
+        window.deleteMessage = deleteMessage;
+
+
+        // bugs: It's not updating the friend icon when both people are friended so uhhh names it would be peak if you fix :333
+
+        let hasNewNotifications = false;
+        let isNotificationPanelOpen = false;
+
+        function updateNotificationsIcon(hasNewNotifications) {
+            const notificationButton = document.getElementById("notification-btn");
+            const icon = notificationButton.querySelector("img");
+
+            icon.src = hasNewNotifications ? "notification_active.png" : "notification_not_active.png";
+        }
+
+        function updateFriendButtonIconForUser() {
+            const user = auth.currentUser;
+            if (user) {
+                const userId = user.uid;
+                const database = getDatabase();
+                const friendsRef = ref(database, `friends/${userId}/friends`);
+
+                get(friendsRef).then(snapshot => {
+                    if (snapshot.exists()) {
+                        const friendsList = snapshot.val();
+
+                        friendsList.forEach(friendId => {
+                            document.querySelectorAll(`[data-friended-id="${friendId}"]`).forEach(button => {
+                                const icon = button.querySelector("img");
+                                if (icon) {
+                                    icon.src = "friend_added.png";
+                                }
+                            });
+                        });
                     } else {
-                        document.getElementById('login-container').style.display = "flex";
-                        loadingIndicator.style.display = "none";
+                        console.log("No friends found.");
+                    }
+                }).catch(error => {
+                    console.error("Error fetching friends:", error);
+                });
+            } else {
+                console.log("No user is signed in.");
+            }
+        }
+
+        function loadNotifications() {
+            const user = auth.currentUser;
+            if (user && !isNotificationPanelOpen) {
+                const notificationsRef = ref(database, `notifications/${user.uid}`);
+
+                hasNewNotifications = false;
+
+                onValue(notificationsRef, (snapshot) => {
+                    const notifications = snapshot.val();
+                    const notificationList = document.getElementById("notification-list");
+                    notificationList.innerHTML = "";
+
+                    if (notifications) {
+                        for (const messageId in notifications) {
+                            const message = notifications[messageId];
+                            const notificationItem = document.createElement("li");
+                            notificationItem.id = "notification-item";
+                            notificationItem.textContent = message.text;
+
+                            if (message.type === 'friend_request') {
+                                notificationItem.style.color = '#FF0000';
+
+                                const acceptButton = document.createElement("button");
+                                acceptButton.textContent = "Accept";
+                                acceptButton.addEventListener("click", function () {
+                                    acceptFriendRequest(messageId, message.senderId);
+                                });
+                                notificationItem.appendChild(acceptButton);
+
+                                const ignoreButton = document.createElement("button");
+                                ignoreButton.textContent = "Ignore";
+                                ignoreButton.addEventListener("click", function () {
+                                    ignoreFriendRequest(messageId, user.uid);
+                                });
+                                notificationItem.appendChild(ignoreButton);
+                            }
+
+                            notificationList.appendChild(notificationItem);
+                            hasNewNotifications = true;
+                        }
+                    } else {
+                        const noNotificationsItem = document.createElement("li");
+                        noNotificationsItem.textContent = "No new notifications";
+                        notificationList.appendChild(noNotificationsItem);
+                    }
+
+                    updateNotificationsIcon(hasNewNotifications);
+                });
+            }
+        }
+
+        function acceptFriendRequest(notificationId, senderId) {
+            const user = auth.currentUser;
+            if (user) {
+                setTimeout(() => {
+                    remove(ref(database, `notifications/${user.uid}/${notificationId}`));
+                    remove(ref(database, `notifications/${senderId}/${notificationId}`));
+                }, 4000);
+
+
+                remove(ref(database, `friendRequests/${senderId}/${user.uid}`));
+                remove(ref(database, `friendRequests/${user.uid}/${senderId}`));
+
+
+                const userFriendsRef = ref(database, `friends/${user.uid}/friends`);
+                get(userFriendsRef).then(snapshot => {
+                    let friends = snapshot.exists() ? snapshot.val() : [];
+                    if (!friends.includes(senderId)) {
+                        friends.push(senderId);
+                        set(userFriendsRef, friends);
                     }
                 });
+
+                const senderFriendsRef = ref(database, `friends/${senderId}/friends`);
+                get(senderFriendsRef).then(snapshot => {
+                    let friends = snapshot.exists() ? snapshot.val() : [];
+                    if (!friends.includes(user.uid)) {
+                        friends.push(user.uid);
+                        set(senderFriendsRef, friends);
+                    }
+                });
+
+
+                const notificationForFriend = {
+                    text: `${user.displayName} has accepted your friend request!`,
+                    timestamp: Date.now(),
+                    type: 'friend_request_accepted'
+                };
+                const newNotificationKey = push(ref(database, `notifications/${senderId}`)).key;
+                set(ref(database, `notifications/${senderId}/${newNotificationKey}`), notificationForFriend);
+
 
                 setTimeout(() => {
-                    messagesLoaded = true;
-                    checkIfReady();
-                }, 4000);
-            });
-
-            function showPreview(src, type) {
-                const previewModal = document.getElementById('previewModal');
-                const previewContent = document.getElementById('previewContent');
-                if (type === 'image') {
-                    previewContent.innerHTML = `<img src="${escapeAttribute(src)}" class="preview-content">`;
-                } else if (type === 'video') {
-                    previewContent.innerHTML = `<video controls class="preview-content"><source src="${escapeAttribute(src)}" type="video/mp4">Your browser does not support the video tag.</video>`;
-                }
-                previewModal.style.display = 'flex';
-            }
-
-            document.addEventListener('click', function (event) {
-                const previewModal = document.getElementById('previewModal');
-                if (event.target === previewModal || event.target.classList.contains('preview-content')) {
-                    previewModal.style.display = 'none';
-                }
-            });
-
-            document.addEventListener('DOMContentLoaded', () => {
-                const messagesList = document.getElementById('messages');
-                messagesList.addEventListener('click', function (event) {
-                    if (event.target.tagName === 'IMG' && event.target.closest('li')) {
-                        showPreview(event.target.src, 'image');
-                    } else if (event.target.tagName === 'VIDEO' && event.target.closest('li')) {
-                        showPreview(event.target.querySelector('source').src, 'video');
-                    }
-                });
-            });
-
-            function deleteMessage(messageId) {
-                const user = auth.currentUser;
-                if (user) {
-                    const messageRef = ref(database, 'messages/' + messageId);
-                    get(messageRef).then((snapshot) => {
-                        if (snapshot.exists() && snapshot.val().name === user.displayName) {
-                            remove(messageRef).then(() => {
-                                const messageElement = document.getElementById(messageId);
-                                if (messageElement) {
-                                    messageElement.remove();
-                                }
-                            }).catch((error) => {
-                                console.error("Error deleting message:", error.message);
-                            });
-                        }
-                    }).catch((error) => {
-                        console.error("Error fetching message:", error.message);
-                    });
-                }
-            }
-            window.deleteMessage = deleteMessage;
-
-
-            // bugs: It's not updating the friend icon when both people are friended so uhhh names it would be peak if you fix :333
-
-            let hasNewNotifications = false;
-            let isNotificationPanelOpen = false;
-
-            function updateNotificationsIcon(hasNewNotifications) {
-                const notificationButton = document.getElementById("notification-btn");
-                const icon = notificationButton.querySelector("img");
-
-                icon.src = hasNewNotifications ? "notification_active.png" : "notification_not_active.png";
-            }
-
-            function updateFriendButtonIconForUser() {
-                const user = auth.currentUser;
-                if (user) {
-                    const userId = user.uid;
-                    const database = getDatabase();
-                    const friendsRef = ref(database, `friends/${userId}/friends`);
-
-                    get(friendsRef).then(snapshot => {
-                        if (snapshot.exists()) {
-                            const friendsList = snapshot.val();
-                            
-                            friendsList.forEach(friendId => {
-                                document.querySelectorAll(`[data-friended-id="${friendId}"]`).forEach(button => {
-                                    const icon = button.querySelector("img");
-                                    if (icon) {
-                                        icon.src = "friend_added.png";
-                                    }
-                                });
-                            });
-                        } else {
-                            console.log("No friends found.");
-                        }
-                    }).catch(error => {
-                        console.error("Error fetching friends:", error);
-                    });
-                } else {
-                    console.log("No user is signed in.");
-                }
-            }
-
-            function loadNotifications() {
-                const user = auth.currentUser;
-                if (user && !isNotificationPanelOpen) {
-                    const notificationsRef = ref(database, `notifications/${user.uid}`);
-
-                    hasNewNotifications = false;
-
-                    onValue(notificationsRef, (snapshot) => {
-                        const notifications = snapshot.val();
-                        const notificationList = document.getElementById("notification-list");
-                        notificationList.innerHTML = "";
-
-                        if (notifications) {
-                            for (const messageId in notifications) {
-                                const message = notifications[messageId];
-                                const notificationItem = document.createElement("li");
-                                notificationItem.id = "notification-item";
-                                notificationItem.textContent = message.text;
-
-                                if (message.type === 'friend_request') {
-                                    notificationItem.style.color = '#FF0000';
-
-                                    const acceptButton = document.createElement("button");
-                                    acceptButton.textContent = "Accept";
-                                    acceptButton.addEventListener("click", function () {
-                                        acceptFriendRequest(messageId, message.senderId);
-                                    });
-                                    notificationItem.appendChild(acceptButton);
-
-                                    const ignoreButton = document.createElement("button");
-                                    ignoreButton.textContent = "Ignore";
-                                    ignoreButton.addEventListener("click", function () {
-                                        ignoreFriendRequest(messageId, user.uid);
-                                    });
-                                    notificationItem.appendChild(ignoreButton);
-                                }
-
-                                notificationList.appendChild(notificationItem);
-                                hasNewNotifications = true;
-                            }
-                        } else {
-                            const noNotificationsItem = document.createElement("li");
-                            noNotificationsItem.textContent = "No new notifications";
-                            notificationList.appendChild(noNotificationsItem);
-                        }
-
-                        updateNotificationsIcon(hasNewNotifications);
-                    });
-                }
-            }
-
-            function acceptFriendRequest(notificationId, senderId) {
-                const user = auth.currentUser;
-                if (user) {
-                    setTimeout(() => {
-                        remove(ref(database, `notifications/${user.uid}/${notificationId}`));
-                        remove(ref(database, `notifications/${senderId}/${notificationId}`));
-                    }, 4000);
-
-
-                    remove(ref(database, `friendRequests/${senderId}/${user.uid}`));
-                    remove(ref(database, `friendRequests/${user.uid}/${senderId}`));
-
-
-                    const userFriendsRef = ref(database, `friends/${user.uid}/friends`);
-                    get(userFriendsRef).then(snapshot => {
-                        let friends = snapshot.exists() ? snapshot.val() : [];
-                        if (!friends.includes(senderId)) {
-                            friends.push(senderId);
-                            set(userFriendsRef, friends);
-                        }
-                    });
-
-                    const senderFriendsRef = ref(database, `friends/${senderId}/friends`);
-                    get(senderFriendsRef).then(snapshot => {
-                        let friends = snapshot.exists() ? snapshot.val() : [];
-                        if (!friends.includes(user.uid)) {
-                            friends.push(user.uid);
-                            set(senderFriendsRef, friends);
-                        }
-                    });
-
-
-                    const notificationForFriend = {
-                        text: `${user.displayName} has accepted your friend request!`,
-                        timestamp: Date.now(),
-                        type: 'friend_request_accepted'
-                    };
-                    const newNotificationKey = push(ref(database, `notifications/${senderId}`)).key;
-                    set(ref(database, `notifications/${senderId}/${newNotificationKey}`), notificationForFriend);
-
-
-                    setTimeout(() => {
-                        const notificationRef = ref(database, `notifications/${senderId}/${newNotificationKey}`);
-                        remove(notificationRef);
-                    }, 4000);
-
-                    const notificationRef = ref(database, `notifications/${user.uid}/${notificationId}`);
+                    const notificationRef = ref(database, `notifications/${senderId}/${newNotificationKey}`);
                     remove(notificationRef);
+                }, 4000);
+
+                const notificationRef = ref(database, `notifications/${user.uid}/${notificationId}`);
+                remove(notificationRef);
 
 
-                    updateFriendButtonIconForUser();
-                    loadNotifications();
-                }
+                updateFriendButtonIconForUser();
+                loadNotifications();
             }
+        }
 
-            function ignoreFriendRequest(notificationId, userId) {
-                const user = auth.currentUser;
-                if (user) {
-                    setTimeout(() => {
-                        remove(ref(database, `notifications/${userId}/${notificationId}`));
-                        remove(ref(database, `notifications/${user.uid}/${notificationId}`));
-                    }, 4000);
-                    loadNotifications();
-                }
+        function ignoreFriendRequest(notificationId, userId) {
+            const user = auth.currentUser;
+            if (user) {
+                setTimeout(() => {
+                    remove(ref(database, `notifications/${userId}/${notificationId}`));
+                    remove(ref(database, `notifications/${user.uid}/${notificationId}`));
+                }, 4000);
+                loadNotifications();
             }
+        }
 
 
-            setInterval(() => {
-                if (!isNotificationPanelOpen) {
-                    loadNotifications();
-                }
-            }, 5000);
+        setInterval(() => {
+            if (!isNotificationPanelOpen) {
+                loadNotifications();
+            }
+        }, 5000);
 
 
-            document.getElementById("notification-btn").addEventListener("click", function () {
-                const notificationContainer = document.getElementById("notification");
+        document.getElementById("notification-btn").addEventListener("click", function () {
+            const notificationContainer = document.getElementById("notification");
 
-                if (notificationContainer.style.display === "none" || notificationContainer.style.display === "") {
-                    notificationContainer.style.display = "block";
-                    isNotificationPanelOpen = true;
+            if (notificationContainer.style.display === "none" || notificationContainer.style.display === "") {
+                notificationContainer.style.display = "block";
+                isNotificationPanelOpen = true;
 
-                    hasNewNotifications = false;
-                    updateNotificationsIcon(hasNewNotifications);
-                } else {
-                    notificationContainer.style.display = "none";
-                    isNotificationPanelOpen = false;
-                }
-            });
-
-            document.getElementById("closeNOTI").addEventListener("click", function () {
-                document.getElementById("notification").style.display = "none";
+                hasNewNotifications = false;
+                updateNotificationsIcon(hasNewNotifications);
+            } else {
+                notificationContainer.style.display = "none";
                 isNotificationPanelOpen = false;
-            });
-
-
-            document.querySelectorAll("[data-friended-id]").forEach(button => {
-                button.addEventListener("click", friendRequest);
-            });
-
-
-            document.addEventListener("click", function (event) {
-                console.log("Click detected!");
-                if (event.target.closest("#friend-btn")) {
-                    console.log("Friend button clicked!");
-                    friendRequest(event);
-                }
-            });
-
-            function friendRequest(event) {
-                const user = auth.currentUser;
-                if (user) {
-                    const button = event.target.closest("#friend-btn");
-                    const friendedId = button.getAttribute("data-friended-id");
-
-                    console.log("Current User ID:", user.uid);
-                    console.log("Friended ID:", friendedId);
-
-                    const friendRequestRef = ref(database, `friendRequests/${friendedId}/${user.uid}`);
-
-                    get(friendRequestRef).then(snapshot => {
-                        if (!snapshot.exists()) {
-                            set(friendRequestRef, {
-                                timestamp: Date.now(),
-                                status: 'pending',
-                                senderId: user.uid,
-                            });
-
-                            const notificationRef = ref(database, `notifications/${friendedId}`);
-                            const newNotification = {
-                                text: `${user.displayName} sent you a friend request!`,
-                                timestamp: Date.now(),
-                                type: 'friend_request',
-                                senderId: user.uid,
-                            };
-                            const newNotificationKey = push(notificationRef).key;
-                            set(ref(database, `notifications/${friendedId}/${newNotificationKey}`), newNotification);
-                        }
-                    }).catch(error => {
-                        console.error("Error checking if friend request already exists: ", error);
-                    });
-                }
             }
+        });
 
-            function getUserIdByUsername(username) {
-                return new Promise((resolve, reject) => {
-                    get(ref(database, `usernames/${username}`)).then(snapshot => {
-                        if (snapshot.exists()) {
-                            resolve(snapshot.val());
-                        } else {
-                            reject("Username not found");
-                        }
-                    }).catch(error => {
-                        reject(error);
-                    });
+        document.getElementById("closeNOTI").addEventListener("click", function () {
+            document.getElementById("notification").style.display = "none";
+            isNotificationPanelOpen = false;
+        });
+
+
+        document.querySelectorAll("[data-friended-id]").forEach(button => {
+            button.addEventListener("click", friendRequest);
+        });
+
+
+        document.addEventListener("click", function (event) {
+            console.log("Click detected!");
+            if (event.target.closest("#friend-btn")) {
+                console.log("Friend button clicked!");
+                friendRequest(event);
+            }
+        });
+
+        function friendRequest(event) {
+            const user = auth.currentUser;
+            if (user) {
+                const button = event.target.closest("#friend-btn");
+                const friendedId = button.getAttribute("data-friended-id");
+
+                console.log("Current User ID:", user.uid);
+                console.log("Friended ID:", friendedId);
+
+                const friendRequestRef = ref(database, `friendRequests/${friendedId}/${user.uid}`);
+
+                get(friendRequestRef).then(snapshot => {
+                    if (!snapshot.exists()) {
+                        set(friendRequestRef, {
+                            timestamp: Date.now(),
+                            status: 'pending',
+                            senderId: user.uid,
+                        });
+
+                        const notificationRef = ref(database, `notifications/${friendedId}`);
+                        const newNotification = {
+                            text: `${user.displayName} sent you a friend request!`,
+                            timestamp: Date.now(),
+                            type: 'friend_request',
+                            senderId: user.uid,
+                        };
+                        const newNotificationKey = push(notificationRef).key;
+                        set(ref(database, `notifications/${friendedId}/${newNotificationKey}`), newNotification);
+                    }
+                }).catch(error => {
+                    console.error("Error checking if friend request already exists: ", error);
                 });
             }
+        }
+
+        function getUserIdByUsername(username) {
+            return new Promise((resolve, reject) => {
+                get(ref(database, `usernames/${username}`)).then(snapshot => {
+                    if (snapshot.exists()) {
+                        resolve(snapshot.val());
+                    } else {
+                        reject("Username not found");
+                    }
+                }).catch(error => {
+                    reject(error);
+                });
+            });
+        }
 
         // you can go shit yourself names :middle_finger:
 
@@ -1286,11 +1287,12 @@
                 required><br><br>
             <button type="submit">Sign in</button>
             <button type="submit">Sign up</button>
-            <p id="tos-notice" style="color: red;">By using Senera, I agree to the <a href="https://senera.freakybob.site/tos">TOS</a>.</p>
+            <p id="tos-notice" style="color: red;">By using Senera, I agree to the <a
+                    href="https://senera.freakybob.site/tos">TOS</a>.</p>
             <p id="login-error" style="color: red;"></p>
         </form>
     </div>
-<!--    <script>
+    <!--    <script>
         const signupCaptcha = document.getElementById('signupCaptcha');
 
             signupCaptcha.addEventListener('verified', (e) => {
@@ -1300,53 +1302,53 @@
                 console.log('error event', {error: e.error});
             });
         </script>-->
-        <div id="chat-container" style="display: none;">
-            <div class="gradientfortop"></div>
-            <ul id="messages"></ul>
-            <div id="typingIndicator"></div>
-            <form id="message-form" autocomplete="off">
-                <p id="warning-message" style="color: red; display: none; text-align: center; font-weight: bold;"></p>
-                <div id="msg">
-                    <div id="replyIndicator" style="display: none;"></div>
-                    <input type="text" id="message" placeholder="Send a message" maxlength="300">
-                    <h1 id="charLimit">300</h1>
-                    <button id="send" type="submit"><img src="send.svg" alt="Send"></button>
-                </div>
-            </form>
+    <div id="chat-container" style="display: none;">
+        <div class="gradientfortop"></div>
+        <ul id="messages"></ul>
+        <div id="typingIndicator"></div>
+        <form id="message-form" autocomplete="off">
+            <p id="warning-message" style="color: red; display: none; text-align: center; font-weight: bold;"></p>
+            <div id="msg">
+                <div id="replyIndicator" style="display: none;"></div>
+                <input type="text" id="message" placeholder="Send a message" maxlength="300">
+                <h1 id="charLimit">300</h1>
+                <button id="send" type="submit"><img src="send.svg" alt="Send"></button>
+            </div>
+        </form>
 
-            <div class="online">loading...</div>
-            <div id="menu">
-                <button id="profile" class="user-settingsBTN" title="Profile"><img src="default.png"
-                        style="width:40px;height:40px;border-radius:50%;" alt="Profile"
-                        onerror="this.src='default.png'"></button>
-                <button id="notification-btn" title="notifications"><img src="notification_not_active.png"
-                        alt="notifications"></button>
-                <button id="settings" title="Settings"><img src="settings.svg" alt="Settings"></button>
-                <button id="help" title="Help"><img src="help.svg" alt="Help"></button>
+        <div class="online">loading...</div>
+        <div id="menu">
+            <button id="profile" class="user-settingsBTN" title="Profile"><img src="default.png"
+                    style="width:40px;height:40px;border-radius:50%;" alt="Profile"
+                    onerror="this.src='default.png'"></button>
+            <button id="notification-btn" title="notifications"><img src="notification_not_active.png"
+                    alt="notifications"></button>
+            <button id="settings" title="Settings"><img src="settings.svg" alt="Settings"></button>
+            <button id="help" title="Help"><img src="help.svg" alt="Help"></button>
+        </div>
+        <div id="modal-settings" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Settings</h2>
+                <form onsubmit="return false;" autocomplete="off">
+                    <input type="checkbox" id="loadYouTubeEmbedsC" checked>
+                    <label for="loadYouTubeEmbedsC">Load YouTube Embeds (disable if using a low-mem system)</label>
+                    <br>
+                    <input type="checkbox" id="loadImageEmbedsC" checked>
+                    <label for="loadImageEmbedsC">Load images (recommended)</label>
+                    <br>
+                    <input type="checkbox" id="unloadMessagesC" checked>
+                    <label for="unloadMessagesC" title="Automatically unload messages before the latest 50.">Unload
+                        messages (recommended)</label>
+                    <br>
+                    <input type="checkbox" id="pingSoundC" checked>
+                    <label for="pingSoundC">Enable pings</label>
+                    <br>
+                    <button type="button" id="LOGOUTTHANKSNOMAFORTHECODEongioweyouone">Log out</button>
+                    <button type="button" id="saveSettings">Save</button>
+                </form>
             </div>
-            <div id="modal-settings" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Settings</h2>
-                    <form onsubmit="return false;" autocomplete="off">
-                        <input type="checkbox" id="loadYouTubeEmbedsC" checked>
-                        <label for="loadYouTubeEmbedsC">Load YouTube Embeds (disable if using a low-mem system)</label>
-                        <br>
-                        <input type="checkbox" id="loadImageEmbedsC" checked>
-                        <label for="loadImageEmbedsC">Load images (recommended)</label>
-                        <br>
-                        <input type="checkbox" id="unloadMessagesC" checked>
-                        <label for="unloadMessagesC" title="Automatically unload messages before the latest 50.">Unload
-                            messages (recommended)</label>
-                        <br>
-                        <input type="checkbox" id="pingSoundC" checked>
-                        <label for="pingSoundC">Enable pings</label>
-                        <br>
-                        <button type="button" id="LOGOUTTHANKSNOMAFORTHECODEongioweyouone">Log out</button>
-                        <button type="button" id="saveSettings">Save</button>
-                    </form>
-                </div>
-            </div>
+        </div>
 
         <div id="modal-feedback" class="modal">
             <div class="modal-content">
@@ -1372,7 +1374,8 @@
                 <div id="separator" style="height: 1px; background-color: #ccc;"></div>
                 <br>
                 <strong>Open Source Attributions:</strong>
-                <li>Senera is licensed under <a href="https://github.com/Freakybob-Team/senera/blob/main/LICENSE">GPL-3.0</a>.</li>
+                <li>Senera is licensed under <a
+                        href="https://github.com/Freakybob-Team/senera/blob/main/LICENSE">GPL-3.0</a>.</li>
                 <li>Google Material Design Icons, licensed under the Apache 2.0 License.</li>
                 <li>Material Design Sounds by Google, CC-BY 4.0</li>
                 <li>Twemoji provided by Jason Sofonia & Justine De Caires (originally Twitter), licensed under the MIT
@@ -1380,7 +1383,7 @@
                 <li>Twemoji by jdecked on GitHub, adapted from "Twemoji" by Twitter, CC-BY 4.0.</li>
             </div>
         </div>
-            
+
         <div id="user-settings" class="modal">
             <div class="modal-content" style="overflow: hidden;">
                 <span class="close">&times;</span>
@@ -1409,23 +1412,24 @@
         </div>
     </div>
 
-        <div class="loadingDiv">
-            <img src="loading.gif">
-            <p><b>Senera Public Beta</b></p>
-            <p1 id="loadingStatus">Trying to sign you in...</p1>
-        </div>
-        <div id="previewModal" class="preview-modal">
-            <div id="previewContent"></div>
-        </div>
-    </body>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            twemoji.parse(document.body, {
-                folder: 'svg',
-                ext: '.svg'
+    <div class="loadingDiv">
+        <img src="loading.gif">
+        <p><b>Senera Public Beta</b></p>
+        <p1 id="loadingStatus">Trying to sign you in...</p1>
+    </div>
+    <div id="previewModal" class="preview-modal">
+        <div id="previewContent"></div>
+    </div>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        twemoji.parse(document.body, {
+            folder: 'svg',
+            ext: '.svg'
 
         });
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@hcaptcha/vanilla-hcaptcha"></script>
+
 </html>
