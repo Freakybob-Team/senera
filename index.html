@@ -367,7 +367,7 @@
                 const msg = snapshot.val();
                 const li = document.createElement("li");
                 li.id = snapshot.key;
-                let formattedMessage = `<img src="${escapeAttribute(msg.photo || 'default.png')}" style="width:30px;height:30px;border-radius:50%; margin-right: 10px;" onerror="this.src='default.png'"> <b>${escapeHTML(msg.name)}</b><br> `;
+                let formattedMessage = `<img src="${escapeAttribute(msg.photo || 'default.png')}" style="width:30px;height:30px;border-radius:50%; margin-right: 10px;" onerror="this.src='default.png'"> <b>${escapeHTML(msg.name)}</b><span class="timestamp" style="margin-left: 5px; font-size: 0.8em; color: #aaa;">${formatTimestamp(msg.timestamp)}</span><br> `;
                 if (msg.reply) {
                     formattedMessage += `<div class="reply-info">In reply to <b>@${escapeHTML(msg.reply.author)}</b>: ${escapeHTML(msg.reply.messageText)}</div>`;
                 }
@@ -379,7 +379,6 @@
                         formattedMessage += `<button class="delete-icon" title="Delete" onclick="deleteMessage('${snapshot.key}')"><img src="delete.svg" alt="Delete" style="width:16px;height:16px;"></button>`;
                     }
                     formattedMessage += `</div>`;
-                    formattedMessage += `<span class="timestamp" style="margin-left: 10px; font-size: 0.8em; color: #aaa;">${formatTimestamp(msg.timestamp)}</span>`;
                 }
                 li.innerHTML = formattedMessage;
                 document.getElementById("messages").appendChild(li);
