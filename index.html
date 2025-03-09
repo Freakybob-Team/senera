@@ -747,6 +747,7 @@ const firebaseConfig = {
                                 const truncatedStatusStr = status.length > 35 ? status.slice(0, 35) + '...' : status;
                                 const escapedTruncatedStatus = escapeHTML(truncatedStatusStr);
                                 const escapedFullStatus = escapeHTML(status);
+                                updateFriendButtonIconForUser();
                                 
                                 onlineUsers += `
                                     <div style="display:flex;align-items:center;margin-bottom:5px;cursor:pointer;" class="swag" 
