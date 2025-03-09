@@ -948,7 +948,6 @@
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     loadingStatus.innerText = "Loading messages...";
-                    loadMessages();
                 } else {
                     document.getElementById('login-container').style.display = "flex";
                     loadingIndicator.style.display = "none";
