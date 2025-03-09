@@ -485,7 +485,7 @@ a:hover {
     top: 0;
     left: 0;
     z-index: 99;
-    background-image: linear-gradient(45deg, #093355, #005300, #032a31);
+    background-image: linear-gradient(45deg, #182e62, #034f84, #0a4402);
     background-size: 400% 400%;
     animation: flow 15s ease-in-out infinite;
 }
