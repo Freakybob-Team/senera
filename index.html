@@ -298,15 +298,20 @@
             }
 
             function formatTimestamp(ts) {
-                const date = new Date(ts);
-                let hours = date.getHours();
-                let minutes = date.getMinutes();
-                const ampm = hours >= 12 ? " PM" : " AM";
-                hours = hours % 12;
-                hours = hours ? hours : 12;
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                return `${hours}:${minutes}${ampm}`;
-            }
+            const date = new Date(ts);
+            let hours = date.getHours();
+            let minutes = date.getMinutes();
+            let day = date.getDate();
+            let month = date.getMonth() + 1;
+            let year = date.getFullYear();
+            const ampm = hours >= 12 ? " PM" : " AM";
+
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+
+            return `${month}/${day}/${year} at ${hours}:${minutes}${ampm}`;
+        }
 
             function submitForm(e) {
                 e.preventDefault();
@@ -356,60 +361,61 @@
 
 
             function loadMessages() {
-                const messagesList = document.getElementById("messages");
-
-                onChildAdded(messagesRef, (snapshot) => {
-                    const msg = snapshot.val();
-                    const li = document.createElement("li");
-                    li.id = snapshot.key;
-                    let formattedMessage = `<img src="${escapeAttribute(msg.photo || 'default.png')}" style="width:30px;height:30px;border-radius:50%; margin-right: 10px;" onerror="this.src='default.png'"> <b>${escapeHTML(msg.name)}</b><br> `;
-                    if (msg.reply) {
-                        formattedMessage += `<div class="reply-info">In reply to <b>@${escapeHTML(msg.reply.author)}</b>: ${escapeHTML(msg.reply.messageText)}</div>`;
+            const messagesList = document.getElementById("messages");
+            onChildAdded(messagesRef, (snapshot) => {
+                const msg = snapshot.val();
+                const li = document.createElement("li");
+                li.id = snapshot.key;
+                let formattedMessage = `<img src="${escapeAttribute(msg.photo || 'default.png')}" style="width:30px;height:30px;border-radius:50%; margin-right: 10px;" onerror="this.src='default.png'"> <b>${escapeHTML(msg.name)}</b><br> `;
+                if (msg.reply) {
+                    formattedMessage += `<div class="reply-info">In reply to <b>@${escapeHTML(msg.reply.author)}</b>: ${escapeHTML(msg.reply.messageText)}</div>`;
+                }
+                formattedMessage += processMessage(msg.message.trim());
+                if (msg.timestamp) {
+                    formattedMessage += `<div class="message-options">`;
+                    formattedMessage += `<button class="reply-icon" title="Reply" onclick="setReply('${snapshot.key}', '${escapeHTML(msg.name)}', '${escapeHTML(msg.message)}')">⤻</button>`;
+                    if (auth.currentUser && msg.name === auth.currentUser.displayName) {
+                        formattedMessage += `<button class="delete-icon" title="Delete" onclick="deleteMessage('${snapshot.key}')"><img src="delete.svg" alt="Delete" style="width:16px;height:16px;"></button>`;
                     }
-                    formattedMessage += processMessage(msg.message.trim());
-                    if (msg.timestamp) {
-                        formattedMessage += `<button class="reply-icon" title="Reply" onclick="setReply('${snapshot.key}', '${escapeHTML(msg.name)}', '${escapeHTML(msg.message)}')">⤻</button>`;
-                        if (auth.currentUser && msg.name === auth.currentUser.displayName) {
-                            formattedMessage += `<button class="delete-icon" title="Delete" onclick="deleteMessage('${snapshot.key}')"><img src="delete.svg" alt="Delete" style="width:16px;height:16px;"></button>`;
-                        }
-                        formattedMessage += `<span class="timestamp" style="margin-left: 10px; font-size: 0.8em; color: #aaa;">${formatTimestamp(msg.timestamp)}</span>`;
-                    }
-                    li.innerHTML = formattedMessage;
-                    document.getElementById("messages").appendChild(li);
+                    formattedMessage += `</div>`;
+                    formattedMessage += `<span class="timestamp" style="margin-left: 10px; font-size: 0.8em; color: #aaa;">${formatTimestamp(msg.timestamp)}</span>`;
+                }
+                li.innerHTML = formattedMessage;
+                document.getElementById("messages").appendChild(li);
 
-                    twemoji.parse(li, {
-                        folder: 'svg',
-                        ext: '.svg'
-                    });
-
-                    const currentUser = auth.currentUser;
-                    if (localStorage.getItem('pingSound') === 'true' && currentUser && currentUser.displayName) {
-                        const usernameRegex = new RegExp(`@${currentUser.displayName}\\b`, 'i');
-                        if (msg.message.match(usernameRegex) || (msg.reply && msg.reply.author === currentUser.displayName)) {
-                            pingAudio.play().catch(err => console.error("Error playing ping sound:", err));
-
-                            const messageElements = document.querySelectorAll('li');
-                            messageElements.forEach((messageElement) => {
-                                const messageText = messageElement.textContent;
-
-                                if (messageText.includes(`@${currentUser.displayName}`) || messageText.includes(`@${currentUser.displayName.toLowerCase()}`)) {
-                                    messageElement.classList.add('ping');
-                                }
-                            });
-                        }
-                    }
-
-                    if (localStorage.getItem('unloadMessages') === 'true') {
-                        const messages = messagesList.getElementsByTagName("li");
-                        while (messages.length > 50) {
-                            messagesList.removeChild(messagesList.firstChild);
-                        }
-                    }
-                    if (isNearBottom()) {
-                        scrollToBottom();
-                    }
+                twemoji.parse(li, {
+                    folder: 'svg',
+                    ext: '.svg'
                 });
-            }
+
+                const currentUser = auth.currentUser;
+                if (localStorage.getItem('pingSound') === 'true' && currentUser && currentUser.displayName) {
+                    const usernameRegex = new RegExp(`@${currentUser.displayName}\\b`, 'i');
+                    if (msg.message.match(usernameRegex) || (msg.reply && msg.reply.author === currentUser.displayName)) {
+                        pingAudio.play().catch(err => console.error("Error playing ping sound:", err));
+
+                        const messageElements = document.querySelectorAll('li');
+                        messageElements.forEach((messageElement) => {
+                            const messageText = messageElement.textContent;
+
+                            if (messageText.includes(`@${currentUser.displayName}`) || messageText.includes(`@${currentUser.displayName.toLowerCase()}`)) {
+                                messageElement.classList.add('ping');
+                            }
+                        });
+                    }
+                }
+
+                if (localStorage.getItem('unloadMessages') === 'true') {
+                    const messages = messagesList.getElementsByTagName("li");
+                    while (messages.length > 50) {
+                        messagesList.removeChild(messagesList.firstChild);
+                    }
+                }
+                if (isNearBottom()) {
+                    scrollToBottom();
+                }
+            });
+        }
 
             function scrollToBottom() {
                 const messagesList = document.getElementById("messages");
@@ -742,47 +748,95 @@
                 }
             });
 
+        const pronounsInput = document.getElementById('pronouns_input');
+        const savePronounsButton = document.getElementById('savePronouns');
+        const charLimit3 = document.getElementById('charLimit3');
+        const limit = 15;
+
+        pronounsInput.addEventListener('input', () => {
+            const remainingChars = limit - pronounsInput.value.length;
+            charLimit3.textContent = remainingChars;
+
+            if (remainingChars <= 5) {
+                charLimit3.style.color = 'red';
+            } else {
+                charLimit3.style.color = '';
+            }
+        });
+
+        if (savePronounsButton) {
+            savePronounsButton.addEventListener('click', () => {
+                const pronouns = pronounsInput.value.trim();
+                if (pronouns !== "") {
+                    document.getElementById('pronouns').textContent = pronouns;
+                    pronounsInput.value = "";
+
+                    modal.style.display = "none";
+                    charLimit3.textContent = limit;
+                    charLimit3.style.color = '';
+                    const user = auth.currentUser;
+                    if (user) {
+                        const userPronounsRef = ref(database, "users/" + user.uid + "/pronouns");
+                        set(userPronounsRef, pronouns);
+                    }
+                }
+            });
+        }
+
             let currentOpenElement = null;
 
         document.body.addEventListener("click", function (event) {
             const userElement = event.target.closest(".swag");
             const userContainer = document.querySelector('.user-container');
-
             const user = auth.currentUser;
-
 
             if (userElement) {
                 const name = userElement.getAttribute("data-name");
+                const photo = userElement.getAttribute("data-photo") || "default.png";
+                const status = userElement.getAttribute("data-status") || "No status...";
                 if (name === user.displayName) {
                     document.querySelector(".user-options").style.display = "none";
                 } else {
-                    document.querySelector(".user-options").style.display = "inline-block";
+                    document.querySelector(".user-options").style.display = "none";
                 }
 
                 if (userElement === currentOpenElement) {
-                    userContainer.style.display = "none";
+                    userContainer.style.opacity = "0";
+                    userContainer.style.transform = "translateY(-10px)";
+                    setTimeout(() => {
+                        userContainer.style.display = "none";
+                    }, 200);
                     currentOpenElement = null;
                 } else {
-                    const photo = userElement.getAttribute("data-photo") || "default.png";
-                    const status = userElement.getAttribute("data-status") || "No status...";
-
                     document.getElementById("profile-name").textContent = name;
                     document.getElementById("profile-pfp").src = photo;
                     document.getElementById("profile-status").textContent = status;
 
                     userContainer.style.position = "absolute";
                     userContainer.style.display = "flex";
+                    userContainer.style.opacity = "0";
+                    userContainer.style.transform = "translateY(-10px)";
 
-                        const onlineBar = document.querySelector(".online");
-                        const onlineRect = onlineBar.getBoundingClientRect();
-                        const offset = 40;
+                    const onlineBar = document.querySelector(".online");
+                    const onlineRect = onlineBar.getBoundingClientRect();
+                    const offset = 40;
 
                     userContainer.style.top = `${onlineRect.top + window.scrollY + offset}px`;
                     userContainer.style.left = `${onlineRect.left - userContainer.offsetWidth - 10}px`;
 
+                    setTimeout(() => {
+                        userContainer.style.opacity = "1";
+                        userContainer.style.transform = "translateY(0)";
+                    }, 10);
+
                     currentOpenElement = userElement;
                 }
             } else if (!event.target.closest(".user-container")) {
+                userContainer.style.opacity = "0";
+                userContainer.style.transform = "translateY(-10px)";
+                setTimeout(() => {
+                    userContainer.style.display = "none";
+                }, 200);
                 currentOpenElement = null;
             }
         });
@@ -1200,22 +1254,25 @@
     </div>
 
     <div class="user-container" style="display: none;">
-            <div class="user-options">
-                <!--<button id="friend-btn">
-                    <img src="friend.png" alt="Friend Button" class="friend-img" />
-                </button>-->
-                <!--<button id="block-btn">
-                <img src="block-img.png" alt="Block this person?" class="block-img">
-            </button> Block button -->
-            </div>
-            <img id="profile-pfp" src="default.png" alt="Profile Picture" onerror="this.src='default.png'"
-                class="user-img" height="100px" width="100px" style="border-radius: 50%;">
-            <p id="profile-name" class="username" style="font-size: 40px;" data-username="{{FRIENDUSERNAME}}"></p>
-
-            <div class="user-desc">
-                <p id="profile-status" class="desc" style="font-size: 15px;">gay f</p>
-            </div>
+        <div class="user-options" style="display: none;">
+            <!--<button id="friend-btn">
+                        <img src="friend.png" alt="Friend Button" class="friend-img" />
+                    </button>-->
+            <!--<button id="block-btn">
+                    <img src="block-img.png" alt="Block this person?" class="block-img">
+                </button> Block button -->
         </div>
+        <img id="profile-pfp" src="default.png" alt="Profile Picture" onerror="this.src='default.png'" class="user-img"
+            height="100px" width="100px" style="border-radius: 50%;">
+        <div class="user-desc">
+            <p id="profile-status" class="desc" style="font-size: 15px;">what</p>
+        </div>
+        <div class="user-info">
+            <p id="profile-name" class="username" style="font-size: 32px;" data-username="{{FRIENDUSERNAME}}"></p>
+            <span class="separator" title="Pronouns"></span>
+            <span id="pronouns" class="pronouns" style="font-size: 15px;">greg/skibidi</span>
+        </div>
+    </div>
     <div id="login-container" class="signInForm">
         <h1>Welcome back to Senera (Public Beta)</h1>
         <form id="login-form" style="display: inline-block;" onsubmit="login(event)">
@@ -1323,17 +1380,28 @@
                 <li>Twemoji by jdecked on GitHub, adapted from "Twemoji" by Twitter, CC-BY 4.0.</li>
             </div>
         </div>
+            
         <div id="user-settings" class="modal">
-            <div class="modal-content">
+            <div class="modal-content" style="overflow: hidden;">
                 <span class="close">&times;</span>
                 <h2>Profile</h2>
                 <form onsubmit="return false;" autocomplete="off">
-                    <label for="settings-pfp">Profile Picture URL:</label><br>
-                    <input type="url" id="settings-pfp" placeholder="Enter image URL (default.png)"><br><br>
-                    <p id="status-message">Change your status</p>
+                    <label for="settings-pfp">Profile Picture URL:</label>
+                    <input type="url" id="settings-pfp" placeholder="Enter image URL (default.png)">
+                    <br>
+                    <br>
+                    <label for="status" id="status-message">Change your status</label>
                     <input type="text" id="status" placeholder="Change your status" maxlength="40">
                     <span id="charLimit2">40</span>
                     <br>
+                    <br>
+                    <label for="pronouns_input">Pronouns:</label><br>
+                    <input type="text" id="pronouns_input" maxlength="15" placeholder="Enter pronouns">
+                    <span id="charLimit3">15</span>
+                    <br>
+                    <br>
+
+                    <button type="button" id="savePronouns">Save pronouns</button>
                     <button type="button" style="margin-top: 4px;" id="saveStatus">Save status</button>
                     <button type="button" id="savePFP">Save profile picture</button>
                 </form>
