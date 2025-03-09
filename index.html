@@ -1162,7 +1162,7 @@
                 <img src="assets/block-img.png" alt="Block this person?" class="block-img">
             </button> Block button -->
         </div>
-        <img id="profile-pfp" src="assets/default.png" alt="Profile Picture" onerror="this.src='assets/default.png'" class="user-img"
+        <img id="profile-pfp" src="default.png" alt="Profile Picture" onerror="this.src='default.png'" class="user-img"
             height="100px" width="100px" style="border-radius: 50%;">
         <p id="profile-name" class="username" style="font-size: 40px;"></p>
 
@@ -1182,7 +1182,7 @@
                     userContainer.style.display = "none";
                     currentOpenElement = null;
                 } else {
-                    const photo = userElement.getAttribute("data-photo") || "assets/default.png";
+                    const photo = userElement.getAttribute("data-photo") || "default.png";
                     const status = userElement.getAttribute("data-status") || "No status...";
 
                     document.getElementById("profile-name").textContent = name;
