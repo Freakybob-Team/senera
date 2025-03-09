@@ -845,7 +845,7 @@
 
 
         
-            function login(e) {
+        function login(e) {
             e.preventDefault();
             const email = document.getElementById("login-email").value;
             const password = document.getElementById("login-password").value;
@@ -949,6 +949,7 @@
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     loadingStatus.innerText = "Loading messages...";
+                    loadMessages();
                 } else {
                     document.getElementById('login-container').style.display = "flex";
                     loadingIndicator.style.display = "none";
