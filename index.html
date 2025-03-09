@@ -844,7 +844,8 @@
 
 
 
-        function login(e) {
+        
+            function login(e) {
             e.preventDefault();
             const email = document.getElementById("login-email").value;
             const password = document.getElementById("login-password").value;
@@ -911,8 +912,23 @@
                     });
                 });
                 return Promise.all(imagePromises);
-
             }
+
+            function waitForVideos() {
+                const videos = document.querySelectorAll("#messages video");
+                const videoPromises = Array.from(videos).map(video => {
+                    return new Promise(resolve => {
+                        if (video.readyState > 0) {
+                            resolve();
+                        } else {
+                            video.addEventListener("canplay", resolve);
+                            video.addEventListener("error", resolve);
+                        }
+                    });
+                });
+                return Promise.all(videoPromises);
+            }
+
 
             function checkIfReady() {
                 if (messagesLoaded) {
@@ -921,8 +937,15 @@
                         scrollToBottom();
                         loadingIndicator.style.display = "none";
                     });
+                } else {
+                    loadingStatus.innerText = "Loading videos...";
+                    waitForVideos().then(() => {
+                        scrollToBottom();
+                        loadingIndicator.style.display = "none";
+                    });
                 }
             }
+
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     loadingStatus.innerText = "Loading messages...";
