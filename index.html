@@ -1235,7 +1235,7 @@
             </div>
         </div>
     <div id="login-container" class="signInForm">
-        <h1>Welcome back</h1>
+        <h1>Welcome back to Senera (Public Beta)</h1>
         <form id="login-form" style="display: inline-block;" onsubmit="login(event)">
             <label for="login-username">Username (not required for sign in)</label><br>
             <input type="text" id="login-username"
@@ -1247,6 +1247,7 @@
                 required><br><br>
             <button type="submit">Sign in</button>
             <button type="submit">Sign up</button>
+            <p id="tos-notice" style="color: red;">By using Senera, I agree to the <a href="https://senera.freakybob.site/tos">TOS</a>.</p>
             <p id="login-error" style="color: red;"></p>
         </form>
     </div>
@@ -1359,7 +1360,7 @@ signupCaptcha.addEventListener('error', (e) => {
 
     <div class="loadingDiv">
         <img src="loading.gif">
-        <p><b>Senera</b></p>
+        <p><b>Senera Public Beta</b></p>
         <p1 id="loadingStatus">Trying to sign you in...</p1>
     </div>
     <div id="previewModal" class="preview-modal">
