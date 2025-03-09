@@ -283,6 +283,7 @@ ul {
     height: 80px;
     cursor: pointer;
     font-size: 15px;
+    transition: background-color 0.3s ease;
 }
 
 #menu button:hover {
