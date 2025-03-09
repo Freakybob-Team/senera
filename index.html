@@ -363,7 +363,7 @@ const firebaseConfig = {
                 const msg = snapshot.val();
                 const li = document.createElement("li");
                 li.id = snapshot.key;
-                let formattedMessage = `<img src="${escapeAttribute(msg.photo || 'default.png')}" style="width:30px;height:30px;border-radius:50%; margin-right: 10px;" onerror="this.src='default.png'"> <b>${escapeHTML(msg.name)}</b><br> `;
+                let formattedMessage = `<img src="${escapeAttribute(msg.photo || 'default.png')}" style="width:30px;height:30px;border-radius:50%; margin-right: 10px;" onerror="this.src='default.png'"> <b>${escapeHTML(msg.name)}</b><span class="timestamp" style="margin-left: 5px; font-size: 0.8em; color: #aaa;">${formatTimestamp(msg.timestamp)}</span><br> `;
                 if (msg.reply) {
                     formattedMessage += `<div class="reply-info">In reply to <b>@${escapeHTML(msg.reply.author)}</b>: ${escapeHTML(msg.reply.messageText)}</div>`;
                 }
@@ -373,7 +373,7 @@ const firebaseConfig = {
                     if (auth.currentUser && msg.name === auth.currentUser.displayName) {
                         formattedMessage += `<button class="delete-icon" title="Delete" onclick="deleteMessage('${snapshot.key}')"><img src="delete.svg" alt="Delete" style="width:16px;height:16px;"></button>`;
                     }
-                    formattedMessage += `<span class="timestamp" style="margin-left: 10px; font-size: 0.8em; color: #aaa;">${formatTimestamp(msg.timestamp)}</span>`;
+                    formattedMessage += `</div>`;
                 }
                 li.innerHTML = formattedMessage;
                 document.getElementById("messages").appendChild(li);
@@ -839,6 +839,8 @@ const firebaseConfig = {
         });
 
 
+
+        
         function login(e) {
             e.preventDefault();
             const email = document.getElementById("login-email").value;
@@ -906,8 +908,23 @@ const firebaseConfig = {
                     });
                 });
                 return Promise.all(imagePromises);
-
             }
+
+            function waitForVideos() {
+                const videos = document.querySelectorAll("#messages video");
+                const videoPromises = Array.from(videos).map(video => {
+                    return new Promise(resolve => {
+                        if (video.readyState > 0) {
+                            resolve();
+                        } else {
+                            video.addEventListener("canplay", resolve);
+                            video.addEventListener("error", resolve);
+                        }
+                    });
+                });
+                return Promise.all(videoPromises);
+            }
+
 
             function checkIfReady() {
                 if (messagesLoaded) {
@@ -916,8 +933,15 @@ const firebaseConfig = {
                         scrollToBottom();
                         loadingIndicator.style.display = "none";
                     });
+                } else {
+                    loadingStatus.innerText = "Loading videos...";
+                    waitForVideos().then(() => {
+                        scrollToBottom();
+                        loadingIndicator.style.display = "none";
+                    });
                 }
             }
+
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     loadingStatus.innerText = "Loading messages...";
