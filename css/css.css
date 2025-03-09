@@ -461,7 +461,8 @@ a:hover {
 
 #login-container input,
 #settings-pfp,
-#status {
+#status,
+#pronouns_input {
     width: 290px;
     padding: 10px;
     border: none;
