@@ -723,7 +723,7 @@
 
         document.body.addEventListener("click", function (event) {
             const userElement = event.target.closest(".swag");
-
+            const userContainer = document.querySelector('.user-container');
 
             const user = auth.currentUser;
 
@@ -745,6 +745,9 @@
                     document.getElementById("profile-name").textContent = name;
                     document.getElementById("profile-pfp").src = photo;
                     document.getElementById("profile-status").textContent = status;
+
+                    userContainer.style.display = "flex";
+                    userContainer.style.position = "absolute";
 
                     currentOpenElement = userElement;
                 }
@@ -1262,6 +1265,7 @@ signupCaptcha.addEventListener('error', (e) => {
                 <li>Squirrel (Added Embeds, Emojis and more =3)</li>
                 <li>Nomaakip (Helped with the frontend, features and made the desktop app)</li>
                 <li>Wish (Made the linux port of Senera)</li>
+                <li>mpax235 (Fixed some stuff)</li>
                 <li>All the people at Stack Overflow 13 years ago</li>
                 <li>ChatGPT for the backend stuff</li>
                 <br>
