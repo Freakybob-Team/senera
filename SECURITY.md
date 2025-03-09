@@ -10,8 +10,8 @@ The following versions are supported with security updates currently:
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+To disclose a vulnerability, click "Security" and click the green button in the corner.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+This will privately alert us of the vulnerability!
+
+[You can also click this, too!](https://github.com/Freakybob-Team/senera/security/advisories/new)
