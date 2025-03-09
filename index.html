@@ -42,21 +42,21 @@
             getRedirectResult,
             signInWithCredential
         } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
-        const firebaseConfig = {
+const firebaseConfig = {
 
-            apiKey: "AIzaSyCh3u1OK7oHW1RZ7jIhgC1WPX9Az4vWcBE",
+    apiKey: "AIzaSyCh3u1OK7oHW1RZ7jIhgC1WPX9Az4vWcBE",
 
-            authDomain: "senera-app.firebaseapp.com",
+    authDomain: "senera-app.firebaseapp.com",
 
-            projectId: "senera-app",
+    projectId: "senera-app",
 
-            storageBucket: "senera-app.firebasestorage.app",
+    storageBucket: "senera-app.firebasestorage.app",
 
-            messagingSenderId: "279962559878",
+    messagingSenderId: "279962559878",
 
-            appId: "1:279962559878:web:895faf6acf3b9a5ca23807"
+    appId: "1:279962559878:web:895faf6acf3b9a5ca23807"
 
-        };
+};
 
 
         const app = initializeApp(firebaseConfig);
@@ -271,7 +271,7 @@
                     }
                 } else {
                     part = escapeHTML(part);
-
+                    
                     ////////////////////////////// MARKDOWN
                     // bold
                     part = part.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
@@ -302,16 +302,11 @@
             const date = new Date(ts);
             let hours = date.getHours();
             let minutes = date.getMinutes();
-            let day = date.getDate();
-            let month = date.getMonth() + 1;
-            let year = date.getFullYear();
             const ampm = hours >= 12 ? " PM" : " AM";
-
             hours = hours % 12;
             hours = hours ? hours : 12;
             minutes = minutes < 10 ? "0" + minutes : minutes;
-
-            return `${month}/${day}/${year} at ${hours}:${minutes}${ampm}`;
+            return `${hours}:${minutes}${ampm}`;
         }
 
         function submitForm(e) {
@@ -363,6 +358,7 @@
 
         function loadMessages() {
             const messagesList = document.getElementById("messages");
+
             onChildAdded(messagesRef, (snapshot) => {
                 const msg = snapshot.val();
                 const li = document.createElement("li");
@@ -373,12 +369,10 @@
                 }
                 formattedMessage += processMessage(msg.message.trim());
                 if (msg.timestamp) {
-                    formattedMessage += `<div class="message-options">`;
                     formattedMessage += `<button class="reply-icon" title="Reply" onclick="setReply('${snapshot.key}', '${escapeHTML(msg.name)}', '${escapeHTML(msg.message)}')">⤻</button>`;
                     if (auth.currentUser && msg.name === auth.currentUser.displayName) {
                         formattedMessage += `<button class="delete-icon" title="Delete" onclick="deleteMessage('${snapshot.key}')"><img src="delete.svg" alt="Delete" style="width:16px;height:16px;"></button>`;
                     }
-                    formattedMessage += `</div>`;
                     formattedMessage += `<span class="timestamp" style="margin-left: 10px; font-size: 0.8em; color: #aaa;">${formatTimestamp(msg.timestamp)}</span>`;
                 }
                 li.innerHTML = formattedMessage;
@@ -630,8 +624,11 @@
         const closeButton = modal.querySelector('.close');
         const saveButton = document.getElementById('saveStatus');
         const statusInput = document.getElementById('status');
+        const pronounsInput = document.getElementById('pronouns_input');
         const charLimitDisplay = document.getElementById('charLimit2');
+        const pronounsLimitDisplay = document.getElementById('charLimit3');
         const charLimit = 40;
+        const pronounsLimit = 15;
 
 
         if (userSettingsBTN) {
@@ -660,6 +657,17 @@
             }
         });
 
+        pronounsInput.addEventListener('input', () => {
+            const remainingChars = pronounsLimit - pronounsInput.value.length;
+            pronounsLimitDisplay.textContent = remainingChars;
+
+            if (remainingChars <= 5) {
+                charLimitDisplay.style.color = 'red';
+            } else {
+                charLimitDisplay.style.color = '';
+            }
+        });
+
 
         if (saveButton) {
             saveButton.addEventListener('click', () => {
@@ -674,6 +682,25 @@
                     if (user) {
                         const userStatusRef = ref(database, "users/" + user.uid + "/status");
                         set(userStatusRef, status);
+                    }
+                }
+            });
+        }
+
+        const saveButton2 = document.getElementById('savePronouns');
+        if (saveButton2) {
+            saveButton2.addEventListener('click', () => {
+                const pron = pronounsInput.value.trim();
+                if (pron !== "") {
+                    document.getElementById('pronounstext').textContent = `Your pronouns: ${pron}`;
+                    pronounsInput.value = "";
+                    modal.style.display = "none";
+                    pronounsLimitDisplay.textContent = pronounsLimit;
+
+                    const user = auth.currentUser;
+                    if (user) {
+                        const userPronounsRef = ref(database, "users/" + user.uid + "/pronouns");
+                        set(userPronounsRef, pron);
                     }
                 }
             });
@@ -697,11 +724,17 @@
                         snapshot.forEach(childSnapshot => {
                             const userInfo = childSnapshot.val();
                             const userStatusRef = ref(database, "users/" + childSnapshot.key + "/status");
+                            const userPronounsRef = ref(database, "users/" + childSnapshot.key + "/pronouns");
 
                             const statusPromise = new Promise((resolve) => {
                                 onValue(userStatusRef, (statusSnapshot) => {
                                     const status = statusSnapshot.val() || "";
-                                    resolve({ userInfo, status });
+                                    
+                                    onValue(userPronounsRef, (pronounsSnapshot) => {
+                                        const pronouns = pronounsSnapshot.val() || "Not Set";
+                                        
+                                        resolve({ userInfo, status, pronouns });
+                                    });
                                 });
                             });
 
@@ -709,21 +742,26 @@
                         });
 
                         Promise.all(userPromises).then(userStatusArray => {
-                            userStatusArray.forEach(({ userInfo, status }) => {
+                            userStatusArray.forEach(({ userInfo, status, pronouns }) => {
+                                const user = auth.currentUser;
                                 const truncatedStatusStr = status.length > 35 ? status.slice(0, 35) + '...' : status;
                                 const escapedTruncatedStatus = escapeHTML(truncatedStatusStr);
                                 const escapedFullStatus = escapeHTML(status);
-                                updateFriendButtonIconForUser();
-
+                                
                                 onlineUsers += `
-                <div style="display:flex;align-items:center;margin-bottom:5px;cursor:pointer;" class="swag" data-name="${userInfo.name}" data-photo="${userInfo.photo}" data-status="${escapedFullStatus}" data-userid="${userInfo.userid}">
-                    <img src="${userInfo.photo}" style="width:30px;height:30px;border-radius:50%;margin-right:10px;" onerror="this.src='default.png'">
-                    ${userInfo.name}
-                </div>
-                <div style="font-size:12px;display: flex; margin-top: -10px; margin-left: 58px;${!status ? 'display: none;' : ''}">
-                    <span class="status-truncated" title="${escapedFullStatus}">${escapedTruncatedStatus}</span>
-                </div>
-            `;
+                                    <div style="display:flex;align-items:center;margin-bottom:5px;cursor:pointer;" class="swag" 
+                                        data-name="${userInfo.name}" 
+                                        data-photo="${userInfo.photo}" 
+                                        data-status="${escapedFullStatus}" 
+                                        data-userid="${userInfo.userid}" 
+                                        data-pronouns="${pronouns}">
+                                        <img src="${userInfo.photo}" style="width:30px;height:30px;border-radius:50%;margin-right:10px;" onerror="this.src='default.png'">
+                                        ${userInfo.name}
+                                    </div>
+                                    <div style="font-size:12px;display: flex; margin-top: -10px; margin-left: 58px;${!status ? 'display: none;' : ''}">
+                                        <span class="status-truncated" title="${escapedFullStatus}">${escapedTruncatedStatus}</span>
+                                    </div>
+                                `;
                             });
 
                             document.querySelector(".online").innerHTML = onlineUsers;
@@ -749,74 +787,42 @@
             }
         });
 
-        const pronounsInput = document.getElementById('pronouns_input');
-        const savePronounsButton = document.getElementById('savePronouns');
-        const charLimit3 = document.getElementById('charLimit3');
-        const limit = 15;
-
-        pronounsInput.addEventListener('input', () => {
-            const remainingChars = limit - pronounsInput.value.length;
-            charLimit3.textContent = remainingChars;
-
-            if (remainingChars <= 5) {
-                charLimit3.style.color = 'red';
-            } else {
-                charLimit3.style.color = '';
-            }
-        });
-
-        if (savePronounsButton) {
-            savePronounsButton.addEventListener('click', () => {
-                const pronouns = pronounsInput.value.trim();
-                if (pronouns !== "") {
-                    document.getElementById('pronouns').textContent = pronouns;
-                    pronounsInput.value = "";
-
-                    modal.style.display = "none";
-                    charLimit3.textContent = limit;
-                    charLimit3.style.color = '';
-                    const user = auth.currentUser;
-                    if (user) {
-                        const userPronounsRef = ref(database, "users/" + user.uid + "/pronouns");
-                        set(userPronounsRef, pronouns);
-                    }
-                }
-            });
-        }
-
         let currentOpenElement = null;
 
         document.body.addEventListener("click", function (event) {
+            const user = auth.currentUser;
             const userElement = event.target.closest(".swag");
             const userContainer = document.querySelector('.user-container');
-            const user = auth.currentUser;
+            const userPresenceRef = ref(database, "presence/" + user.uid);
+
 
             if (userElement) {
                 const name = userElement.getAttribute("data-name");
-                const photo = userElement.getAttribute("data-photo") || "default.png";
-                const status = userElement.getAttribute("data-status") || "No status...";
                 if (name === user.displayName) {
                     document.querySelector(".user-options").style.display = "none";
                 } else {
-                    document.querySelector(".user-options").style.display = "none";
+                    document.querySelector(".user-options").style.display = "inline-block";
                 }
 
                 if (userElement === currentOpenElement) {
-                    userContainer.style.opacity = "0";
-                    userContainer.style.transform = "translateY(-10px)";
-                    setTimeout(() => {
-                        userContainer.style.display = "none";
-                    }, 200);
+                    userContainer.style.display = "none";
                     currentOpenElement = null;
                 } else {
+                    const photo = userElement.getAttribute("data-photo") || "default.png";
+                    const status = userElement.getAttribute("data-status") || "No status...";
+                    const userid = userElement.getAttribute("data-userid");
+                    const pronouns = userElement.getAttribute("data-pronouns") || "No pronouns...";
+
                     document.getElementById("profile-name").textContent = name;
                     document.getElementById("profile-pfp").src = photo;
                     document.getElementById("profile-status").textContent = status;
+                    document.getElementById("pronouns").textContent = pronouns;
+
+
+                    document.getElementById("friend-btn").setAttribute("data-friended-id", userid);
 
                     userContainer.style.position = "absolute";
                     userContainer.style.display = "flex";
-                    userContainer.style.opacity = "0";
-                    userContainer.style.transform = "translateY(-10px)";
 
                     const onlineBar = document.querySelector(".online");
                     const onlineRect = onlineBar.getBoundingClientRect();
@@ -825,23 +831,12 @@
                     userContainer.style.top = `${onlineRect.top + window.scrollY + offset}px`;
                     userContainer.style.left = `${onlineRect.left - userContainer.offsetWidth - 10}px`;
 
-                    setTimeout(() => {
-                        userContainer.style.opacity = "1";
-                        userContainer.style.transform = "translateY(0)";
-                    }, 10);
-
                     currentOpenElement = userElement;
                 }
             } else if (!event.target.closest(".user-container")) {
-                userContainer.style.opacity = "0";
-                userContainer.style.transform = "translateY(-10px)";
-                setTimeout(() => {
-                    userContainer.style.display = "none";
-                }, 200);
                 currentOpenElement = null;
             }
         });
-
 
 
         function login(e) {
@@ -1012,14 +1007,18 @@
                 get(friendsRef).then(snapshot => {
                     if (snapshot.exists()) {
                         const friendsList = snapshot.val();
+                        
+                        document.querySelectorAll("[data-friended-id]").forEach(button => {
+                            const friendId = button.getAttribute("data-friended-id");
+                            const icon = button.querySelector("img");
 
-                        friendsList.forEach(friendId => {
-                            document.querySelectorAll(`[data-friended-id="${friendId}"]`).forEach(button => {
-                                const icon = button.querySelector("img");
-                                if (icon) {
+                            if (icon) {
+                                if (friendsList.includes(friendId)) {
                                     icon.src = "friend_added.png";
+                                } else {
+                                    icon.src = "friend.png";
                                 }
-                            });
+                            }
                         });
                     } else {
                         console.log("No friends found.");
@@ -1241,8 +1240,6 @@
         }
 
         // you can go shit yourself names :middle_finger:
-
-
     </script>
 </head>
 
@@ -1256,9 +1253,9 @@
 
     <div class="user-container" style="display: none;">
         <div class="user-options" style="display: none;">
-            <!--<button id="friend-btn">
+            <button id="friend-btn">
                         <img src="friend.png" alt="Friend Button" class="friend-img" />
-                    </button>-->
+                    </button>
             <!--<button id="block-btn">
                     <img src="block-img.png" alt="Block this person?" class="block-img">
                 </button> Block button -->
@@ -1398,7 +1395,7 @@
                     <span id="charLimit2">40</span>
                     <br>
                     <br>
-                    <label for="pronouns_input">Pronouns:</label><br>
+                    <label for="pronouns_input" id="pronounstext">Pronouns:</label><br>
                     <input type="text" id="pronouns_input" maxlength="15" placeholder="Enter pronouns">
                     <span id="charLimit3">15</span>
                     <br>
