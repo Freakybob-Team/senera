@@ -140,30 +140,13 @@ input:hover {
     margin-top: 10px;
 }
 
-
 .username {
-    font-size: 14px;
-    font-weight: bold;
-    color: white;
-    margin-right: 7px;
+    font-size: 32px;
 }
-
-
-.separator {
-    width: 2px;
-    height: 24px;
-    background-color: #888;
-    margin: 0 8px;
-    border-radius: 2px;
-}
-
 
 .pronouns {
+    margin-top: -25px;
     font-size: 15px;
-    color: #c7bfbf;
-    font-weight: 500;
-    text-transform: capitalize;
-    margin-left: 12px;
 }
 
 
@@ -205,7 +188,7 @@ input:hover {
 
 .user-desc {
     background: #444;
-    padding: 15px 20px;
+    padding: 15px 40px;
     border-radius: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     width: auto;
