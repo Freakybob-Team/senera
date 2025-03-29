@@ -4,8 +4,8 @@
 <head>
     <meta content="Senera Public Beta" property="og:title" />
     <meta content="A new era is here." property="og:description" />
-    <meta content="https://senera.freakybob.site" property="og:url" />
-    <meta content="https://senera.freakybob.site/logos/senera-banner.png" property="og:image" />
+    <meta content="https://web.senera.chat" property="og:url" />
+    <meta content="https://web.senera.chat/logos/senera-banner.png" property="og:image" />
     <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
     <title>Senera Public Beta</title>
     <link rel="icon" href="logos/32x32.png">
@@ -85,7 +85,7 @@
             const replyIndicator = document.getElementById('replyIndicator');
             if (replyIndicator && currentReply) {
                 replyIndicator.classList.remove('collapsed');
-                replyIndicator.innerHTML = `<img src="reply.svg" alt="Reply" style="width:24px;height:24px;vertical-align:middle;"><span class="reply-text">"${escapeHTML(currentReply.messageText.slice(0, 30))}..."</span> <span class="cancel" title="Cancel reply">[x]</span>`;
+                replyIndicator.innerHTML = `<img src="images/svg/reply.svg" alt="Reply" style="width:24px;height:24px;vertical-align:middle;"><span class="reply-text">"${escapeHTML(currentReply.messageText.slice(0, 30))}..."</span> <span class="cancel" title="Cancel reply">[x]</span>`;
                 replyIndicator.style.display = 'flex';
                 replyIndicator.querySelector('.cancel').addEventListener('click', cancelReply);
                 setTimeout(() => {
@@ -386,7 +386,7 @@
             const messageData = {
                 name: user.displayName || "Username Error",
                 message: replaceEmojis(message),
-                photo: user && user.photoURL ? user.photoURL : "default.png",
+                photo: user && user.photoURL ? user.photoURL : "images/png/default.png",
                 timestamp: Date.now()
             };
 
@@ -434,7 +434,7 @@
                 const msg = snapshot.val();
                 const li = document.createElement("li");
                 li.id = snapshot.key;
-                let formattedMessage = `<img src="${escapeAttribute(msg.photo || 'default.png')}" style="width:30px;height:30px;border-radius:50%; margin-right: 10px;" onerror="this.src='default.png'"> <b>${escapeHTML(msg.name)}</b><span class="timestamp" style="margin-left: 5px; font-size: 0.8em; color: #aaa;">${formatTimestamp(msg.timestamp)}</span><br> `;
+                let formattedMessage = `<img src="${escapeAttribute(msg.photo || 'images/png/default.png')}" style="width:30px;height:30px;border-radius:50%; margin-right: 10px;" onerror="this.src='images/png/default.png'"> <b>${escapeHTML(msg.name)}</b><span class="timestamp" style="margin-left: 5px; font-size: 0.8em; color: #aaa;">${formatTimestamp(msg.timestamp)}</span><br> `;
                 if (msg.reply) {
                     formattedMessage += `<div class="reply-info">In reply to <b>@${escapeHTML(msg.reply.author)}</b>: ${escapeHTML(msg.reply.messageText)}</div>`;
                 }
@@ -443,7 +443,7 @@
                     formattedMessage += `<div class="message-options">`;
                     formattedMessage += `<button class="reply-icon" title="Reply" onclick="setReply('${snapshot.key}', '${escapeHTML(msg.name)}', '${escapeHTML(msg.message)}')">⤻</button>`;
                     if (auth.currentUser && msg.name === auth.currentUser.displayName) {
-                        formattedMessage += `<button class="delete-icon" title="Delete" onclick="deleteMessage('${snapshot.key}')"><img src="delete.svg" alt="Delete" style="width:16px;height:16px;"></button>`;
+                        formattedMessage += `<button class="delete-icon" title="Delete" onclick="deleteMessage('${snapshot.key}')"><img src="images/svg/delete.svg" alt="Delete" style="width:16px;height:16px;"></button>`;
                     }
                     formattedMessage += `</div>`;
                 }
@@ -530,7 +530,7 @@
                 } else {
                     text = escapeHTML(typingUsers.join(', ')) + escapeHTML(" are typing...");
                 }
-                indicator.innerHTML = '<img src="typing.svg" alt="Typing">' + text;
+                indicator.innerHTML = '<img src="images/svg/typing.svg" alt="Typing">' + text;
             } else {
                 indicator.style.display = "none";
                 messagesList.style.height = "calc(100vh - 105px)";
@@ -619,7 +619,7 @@
             if (settingsButton) {
                 settingsButton.addEventListener('click', () => {
                     if (auth.currentUser) {
-                        document.getElementById('settings-pfp').value = auth.currentUser.photoURL || "default.png";
+                        document.getElementById('settings-pfp').value = auth.currentUser.photoURL || "images/png/default.png";
                     }
                     loadSettings();
                     document.getElementById('modal-settings').style.display = "flex";
@@ -651,7 +651,7 @@
             if (saveSettingsButton) {
                 saveSettingsButton.addEventListener('click', function (e) {
                     e.preventDefault();
-                    const newPfp = document.getElementById('settings-pfp').value.trim() || "default.png";
+                    const newPfp = document.getElementById('settings-pfp').value.trim() || "images/png/default.png";
 
                     localStorage.setItem('loadYouTubeEmbeds', document.getElementById('loadYouTubeEmbedsC').checked);
                     localStorage.setItem('loadImageEmbeds', document.getElementById('loadImageEmbedsC').checked);
@@ -671,7 +671,7 @@
             if (savePFPButton) {
                 savePFPButton.addEventListener('click', function (e) {
                     e.preventDefault();
-                    const newPfp = document.getElementById('settings-pfp').value.trim() || "default.png";
+                    const newPfp = document.getElementById('settings-pfp').value.trim() || "images/png/default.png";
                     if (auth.currentUser) {
                         updateProfile(auth.currentUser, { photoURL: newPfp })
                             .catch(error => console.error("Error updating profile picture:", error.message));
@@ -807,7 +807,7 @@
             if (user) {
                 const userPresenceRef = ref(database, "presence/" + user.uid);
                 
-                set(userPresenceRef, { name: user.displayName || "Unknown", photo: user.photoURL || "default.png", userid: user.uid });
+                set(userPresenceRef, { name: user.displayName || "Unknown", photo: user.photoURL || "images/png/default.png", userid: user.uid });
                 onDisconnect(userPresenceRef).remove();
 
                 const presenceRef = ref(database, "presence");
@@ -859,7 +859,7 @@
                                         data-banner="${userBanner}"
                                         data-userid="${userInfo.userid}" 
                                         data-pronouns="${pronouns}">
-                                        <img src="${userInfo.photo}" style="width:30px;height:30px;border-radius:50%;margin-right:10px;" onerror="this.src='default.png'">
+                                        <img src="${userInfo.photo}" style="width:30px;height:30px;border-radius:50%;margin-right:10px;" onerror="this.src='images/png/default.png'">
                                         ${userInfo.name}
                                     </div>
                                     <div style="font-size:12px;display: flex; margin-top: -10px; margin-left: 58px;${!status ? 'display: none;' : ''}">
@@ -877,7 +877,7 @@
                 document.getElementById('login-container').style.display = "none";
                 const profileButtonImg = document.querySelector("#profile img");
                 if (profileButtonImg) {
-                    profileButtonImg.src = user.photoURL || "default.png";
+                    profileButtonImg.src = user.photoURL || "images/png/default.png";
                 }
                 attachChatEventListeners();
                 loadMessages();
@@ -886,7 +886,7 @@
                 document.getElementById('login-container').style.display = "flex";
                 const profileButtonImg = document.querySelector("#profile img");
                 if (profileButtonImg) {
-                    profileButtonImg.src = "default.png";
+                    profileButtonImg.src = "images/png/default.png";
                 }
             }
         });
@@ -903,7 +903,7 @@
 
             if (userElement) {
                 const name = userElement.getAttribute("data-name");
-                const photo = userElement.getAttribute("data-photo") || "default.png";
+                const photo = userElement.getAttribute("data-photo") || "images/png/default.png";
                 const status = userElement.getAttribute("data-status") || "No status...";
                 const userid = userElement.getAttribute("data-userid");
                 const pronouns = userElement.getAttribute("data-pronouns");
@@ -956,7 +956,7 @@
                     document.getElementById("login-error").innerText = "Username is required for sign up.";
                     return;
                 }
-                const profilePic = document.getElementById("login-pfp") ? document.getElementById("login-pfp").value.trim() : "default.png";
+                const profilePic = document.getElementById("login-pfp") ? document.getElementById("login-pfp").value.trim() : "images/png/default.png";
                 const usernameRef = ref(database, "usernames/" + username);
                 get(usernameRef).then((snapshot) => {
                     if (snapshot.exists()) {
@@ -1121,7 +1121,7 @@
             const notificationButton = document.getElementById("notification-btn");
             const icon = notificationButton.querySelector("img");
 
-            icon.src = hasNewNotifications ? "notification_active.png" : "notification_not_active.png";
+            icon.src = hasNewNotifications ? "images/png/notification_active.png" : "images/png/notification_not_active.png";
         }
 
         function updateFriendButtonIconForUser() {
@@ -1141,9 +1141,9 @@
 
                             if (icon) {
                                 if (friendsList.includes(friendId)) {
-                                    icon.src = "friend_added.png";
+                                    icon.src = "images/png/friend_added.png";
                                 } else {
-                                    icon.src = "friend.png";
+                                    icon.src = "images/png/friend.png";
                                 }
                             }
                         });
@@ -1380,7 +1380,7 @@
         <div id="banner-div" style="box-sizing: border-box; position: relative;">
             <img src="logos/senera-banner.png" alt="Profile Banner" id="profile-banner" style="border-radius: 8px 8px 0 0; height: 150px; object-fit: cover;" width="100%" onerror="this.src='logos/senera-banner.png'">
             
-            <img id="profile-pfp" src="default.png" alt="Profile Picture" onerror="this.src='default.png'" class="user-img"
+            <img id="profile-pfp" src="images/png/default.png" alt="Profile Picture" onerror="this.src='default.png'" class="user-img"
                 height="100px" width="100px" 
                 style="border-radius: 50%; border: 5px solid #2b2b2b; position: absolute; left: 50%; bottom: -50px; transform: translateX(-50%); background-color: #3b3b3b;">
         </div>
@@ -1393,7 +1393,7 @@
         </div>
         <div class="user-options" style="display: none;">
             <button id="friend-btn">
-                <img src="friend.png" alt="Friend Button" class="friend-img" />
+                <img src="images/png/friend.png" alt="Friend Button" class="friend-img" />
             </button>
         </div>
     </div>
@@ -1438,19 +1438,19 @@
                 <div id="replyIndicator" style="display: none;"></div>
                 <input type="text" id="message" placeholder="Send a message" maxlength="300">
                 <h1 id="charLimit">300</h1>
-                <button id="send" type="submit"><img src="send.svg" alt="Send"></button>
+                <button id="send" type="submit"><img src="images/svg/send.svg" alt="Send"></button>
             </div>
         </form>
 
         <div class="online">loading...</div>
         <div id="menu">
-            <button id="profile" class="user-settingsBTN" title="Profile"><img src="default.png"
+            <button id="profile" class="user-settingsBTN" title="Profile"><img src="images/png/default.png"
                     style="width:40px;height:40px;border-radius:50%;" alt="Profile"
-                    onerror="this.src='default.png'"></button>
-            <button id="notification-btn" title="notifications"><img src="notification_not_active.png"
+                    onerror="this.src='images/png/default.png'"></button>
+            <button id="notification-btn" title="notifications"><img src="images/png/notification_not_active.png"
                     alt="notifications"></button>
-            <button id="settings" title="Settings"><img src="settings.svg" alt="Settings"></button>
-            <button id="help" title="Help"><img src="help.svg" alt="Help"></button>
+            <button id="settings" title="Settings"><img src="images/svg/settings.svg" alt="Settings"></button>
+            <button id="help" title="Help"><img src="images/svg/help.svg" alt="Help"></button>
         </div>
         <div id="modal-settings" class="modal">
             <div class="modal-content">
@@ -1543,7 +1543,7 @@
     </div>
 
     <div class="loadingDiv">
-        <img src="loading.gif">
+        <img src="images/gif/loading.gif">
         <p><b>Senera Public Beta</b></p>
         <p1 id="loadingStatus">Trying to sign you in...</p1>
     </div>
