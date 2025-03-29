@@ -526,9 +526,9 @@
                 }
                 let text;
                 if (typingUsers.length === 1) {
-                    text = typingUsers[0] + " is typing...";
+                    text = escapeHTML(typingUsers[0]) + escapeHTML(" is typing...");
                 } else {
-                    text = typingUsers.join(', ') + " are typing...";
+                    text = escapeHTML(typingUsers.join(', ')) + escapeHTML(" are typing...");
                 }
                 indicator.innerHTML = '<img src="typing.svg" alt="Typing">' + text;
             } else {
