@@ -12,9 +12,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <link rel="stylesheet" href="css/css.css">
+    <link rel="stylesheet" href="temp/popup.css">
+    <script>
+        document.addEventListener('click', () => {
+            const audio = document.getElementById('hellsounds');
+            if (audio) {
+                audio.play().catch(error => console.error("Playback error:", error));
+            }
+        }, { once: true });
+
+        document.addEventListener('click', () => {
+            const audio1 = document.getElementById('jumper');
+            if (audio1) {
+                audio1.play().catch(error => console.error("Playback error:", error));
+            }
+        }, { once: true });
+
+        document.addEventListener('click', () => {
+            setInterval(() => {
+                mcafeepopup();
+            }, 20000);
+        }, { once: true });
+    </script>
+    <audio id="hellsounds" src="temp/ring.mp3" autoplay loop></audio>
+    <audio id="jumper" src="temp/jumper.mp3" autoplay loop></audio>
 </head>
 
 <body>
+    <div class="mcafeepopup">
+        <div class="mcafeepopupcontainer">
+            <div class="header">
+                <img id="mcafeelogo" src="temp/McAfee-TM-h-logo-red-rgb.png">
+            </div>
+            <div class="body">
+                <span id="red" style="margin-top: 10px;color: red; font-weight: bold; text-align: center; font-size: 20px;">Your McAfee Anti-Virus Protection will expire on 04/02/2025</span>
+                <span style="margin-top: 10px; text-align: center; font-weight: bold; color: black;">Renew now to stay protected for your device.</span>
+                <span style="text-align: center; margin-top: 10px; color: gray">If your device is unprotected, it is <b>at risk for viruses and other malware.</b></span>
+            </div>
+            <div class="footer">
+                <span id="red" style="color: red; text-align: center; font-weight: bold;">70% discount! Available for: <span id="availablefor">minutes, seconds</span></span><br>
+                <button id="enablenow" style="background-color: red; border: none; color: white; font-weight: bold; padding: 10px 15px;">Enable Now</button>
+            </div>
+        </div>
+    </div>
     <div id="notification" style="display: none;">
         <h2>Notifications</h2>
         <span id="closeNOTI">&times;</span>
@@ -46,19 +86,19 @@
     
 
     <div id="login-container" class="signInForm">
-        <h1>Welcome back to Senera (Public Beta)</h1>
+        <h1>Welcome back to Hell</h1>
         <form id="login-form" style="display: inline-block;" onsubmit="login(event)">
             <label for="login-username">Username (not required for sign in)</label><br>
             <input type="text" id="login-username"
                 placeholder="The unique account name connected to your account."><br><br>
             <label for="login-email">Email</label><br>
-            <input type="email" id="login-email" placeholder="The email connected to your account." required><br><br>
+            <input type="email" id="login-email" placeholder="The" required><br><br>
             <label for="login-password">Password</label><br>
-            <input type="password" id="login-password" placeholder="Your password (don't forget this!)"
+            <input type="password" id="login-password" placeholder="Your password (please forget this!)"
                 required><br><br>
             <button type="submit">Sign in</button>
             <button type="submit">Sign up</button>
-            <p id="tos-notice" style="color: red;">By using Senera, I agree to the <a
+            <p id="tos-notice" style="color: red;">By using Senera, I DO NOT agree to the <a
                     href="https://senera.freakybob.site/tos">TOS</a>.</p>
             <p id="login-error" style="color: red;"></p>
         </form>
@@ -134,13 +174,7 @@
                 <h2>Help</h2>
                 <p>Need help getting around? Uhh..</p>
                 <strong>Devs:</strong>
-                <li>Freakybob Team (general owner of the project)</li>
-                <li>Squirrel (Added Embeds, Emojis and more =3)</li>
-                <li>Nomaakip (Helped with the frontend, added profile banners,button animations and made the desktop app)</li>
-                <li>Wish (Made the linux port of Senera)</li>
-                <li>mpax235 (fixed SO MUCH stuff omfg)</li>
-                <li>All the people at Stack Overflow 13 years ago</li>
-                <li>ChatGPT for the backend stuff</li>
+                <li>GREG 2024 REAL LEGIT AHHH IM CUMMING</li>
                 <br>
                 <div id="separator" style="height: 1px; background-color: #ccc;"></div>
                 <br>
@@ -189,8 +223,8 @@
 
     <div class="loadingDiv">
         <img src="images/gif/loading.gif">
-        <p><b>Senera Public Beta</b></p>
-        <p1 id="loadingStatus">Trying to sign you in...</p1>
+        <p><b>LEAVE NOW</b></p>
+        <p1 id="loadingStatus">Dear god</p1>
     </div>
     <div id="previewModal" class="preview-modal">
         <div id="previewContent"></div>
@@ -206,6 +240,7 @@
     });
 </script>
 <script type="module" src="./index.js"></script>
+<script src="temp/popup.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@hcaptcha/vanilla-hcaptcha"></script>
 
 </html>

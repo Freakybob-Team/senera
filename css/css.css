@@ -1,4 +1,12 @@
 /* GITHUB PLEASE PUSH IT */
+
+@font-face {
+    font-family: 'Wingdings';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Wingdings'), url('wingding.woff') format('woff');
+    }
+
 *::-webkit-scrollbar {
     height: 10px;
     width: 15px;
@@ -6,12 +14,12 @@
 
 *::-webkit-scrollbar-track {
     border-radius: 0px;
-    background-color: #4E5152;
+    background-color:  	#FF69B4;
 }
 
 *::-webkit-scrollbar-thumb {
     border-radius: 0px;
-    background-color: #949494;
+    background-color:  	#581845;
 }
 
 *::-webkit-scrollbar-thumb:hover {
@@ -23,11 +31,24 @@
 }
 
 body {
-    background-color: #2f2f2f;
+    background-image: url('https://f.feridinha.com/GXSvX.png');
+    background-size: cover;
     margin: 0;
-    font-family: 'Arial';
+    font-family: 'Wingdings';
+  -webkit-animation: Flash-Wings 3s infinite;  /* Safari 4+ */
+  -moz-animation: Flash-Wings 3s infinite;  /* Fx 5+ */
+  -o-animation: Flash-Wings 3s infinite;  /* Opera 12+ */
+  animation: Flash-Wings 3s infinite;  /* IE 10+, Fx 29+ */
 }
 
+@-webkit-keyframes Flash-Wings {
+  0%, 49% {
+    font-family: 'Wingdings';
+  }
+  50%, 100% {
+    font-family: 'Arial';
+  }
+}
 
 #login-container {
     display: none;
@@ -43,7 +64,7 @@ body {
 }
 
 #msg {
-    background-color: #1f1f1f;
+    background-color: #0000FF;
     width: calc(100% - 330px);
     margin-left: 80px;
     height: 50px;
@@ -84,7 +105,9 @@ input:hover {
 .online {
     width: 250px;
     height: 100%;
-    background-color: #181818;
+    background-image: url('https://f.feridinha.com/64HbW.png');
+    background-size: cover;
+    background-position: center;
     right: 0;
     position: fixed;
     top: 0;
@@ -94,7 +117,7 @@ input:hover {
 
 .user-container {
     z-index: 30;
-    background: #2b2b2b;
+    background-color: #ffffff;
     box-shadow: 0 4px 10px rgba(17, 115, 168, 0.5);
     border-radius: 12px;
     padding: 0 20px 20px; 
@@ -277,7 +300,9 @@ ul {
 }
 
 #messages li:hover {
-    background-color: #3f3f3f;
+    background-image: url('https://f.feridinha.com/o8dQx.jpg');
+background-size: cover;
+background-position: center;
 }
 
 #messages li .timestamp {
@@ -289,7 +314,7 @@ ul {
 }
 
 .gradientfortop {
-    background: linear-gradient(180deg, rgb(35, 35, 35) 0%, rgba(47, 47, 47, 0) 100%);
+    background: linear-gradient(180deg, rgb(255,255,255) 0%, rgba(255, 255, 47, 0) 100%);
     height: 90px;
     position: fixed;
     width: calc(100% - 250px);
@@ -301,14 +326,28 @@ ul {
     position: fixed;
     bottom: 0;
     left: 0;
-    background-color: #202020;
+  -webkit-animation: NAME-YOUR-ANIMATION 0.15s infinite;  /* Safari 4+ */
+  -moz-animation: NAME-YOUR-ANIMATION 0.15s infinite;  /* Fx 5+ */
+  -o-animation: NAME-YOUR-ANIMATION 0.15s infinite;  /* Opera 12+ */
+  animation: NAME-YOUR-ANIMATION 0.15s infinite;  /* IE 10+, Fx 29+ */
     height: 100%;
     width: 80px;
     flex-direction: column;
 }
 
+@-webkit-keyframes NAME-YOUR-ANIMATION {
+  0%, 49% {
+    background-color: rgb(117, 209, 63);
+    border: 3px solid #e50000;
+  }
+  50%, 100% {
+    background-color: #e50000;
+    border: 3px solid rgb(117, 209, 63);
+  }
+}
+
 #menu button {
-    background-color: #202020;
+    background-color: #00FF00;
     color: white;
     border: none;
     width: 80px;
@@ -319,7 +358,7 @@ ul {
 }
 
 #menu button:hover {
-    background-color: #3f3f3f;
+    background-color: #0000FF;
 }
 
 #menu img {
@@ -521,7 +560,7 @@ a:hover {
     top: 0;
     left: 0;
     z-index: 99;
-    background-image: linear-gradient(45deg, #182e62, #034f84, #0a4402);
+    background-image: url('https://f.feridinha.com/f8W5Y.jpg');
     background-size: 400% 400%;
     animation: flow 15s ease-in-out infinite;
 }
